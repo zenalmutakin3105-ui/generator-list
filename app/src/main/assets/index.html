@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#172f48" />
+<title>Generator PO · Beta 0.1</title>
+<style>
+  :root { --navy:#172f48; --navy2:#264d6c; --yellow:#f8be18; --gold:#fff0b3; --green:#167253; --red:#c0392b; --blue:#eaf2ff; --ink:#1d2834; --muted:#697787; --line:#dce3eb; --page:#f3f6fb; --white:#fff; --shadow:0 8px 26px rgba(24,45,72,.075); }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font-family:Inter,Arial,Helvetica,sans-serif; font-size:14px; }
+  header { background:linear-gradient(112deg,#142b45,#265071); color:white; }
+  .head { max-width:1480px; padding:24px 22px; margin:auto; display:flex; justify-content:space-between; align-items:center; gap:18px; }
+  .eyebrow { text-transform:uppercase; letter-spacing:2px; opacity:.77; font-size:11px; font-weight:800; }
+  h1 { font-size:clamp(23px,2.5vw,32px); line-height:1.15; margin:6px 0 7px; }
+  header p { margin:0; color:#d6e2ee; font-size:13px; }
+  .head-stamp { border:1px solid rgba(255,255,255,.3); color:#fefefe; border-radius:100px; padding:8px 15px; font-size:12px; white-space:nowrap; }
+  main { max-width:1480px; margin:auto; padding:22px 22px 65px; }
+  .pill-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+  .pill { display:flex; align-items:center; gap:10px; background:white; border:1px solid var(--line); padding:11px 15px; border-radius:13px; box-shadow:var(--shadow); color:#5a6978; }
+  .pill b { color:var(--navy); font-size:20px; }
+  .layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:18px; align-items:start; }
+  .card { background:white; border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); margin-bottom:18px; overflow:hidden; }
+  .card-hd { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:17px 19px; border-bottom:1px solid var(--line); }
+  .card-hd h2 { font-size:16px; margin:0; display:flex; align-items:center; gap:9px; color:var(--navy); }
+  .step { display:inline-grid; place-items:center; height:26px; width:26px; border-radius:8px; color:white; background:var(--navy2); font-size:13px; }
+  .body { padding:17px 19px 20px; }
+  .hint { font-size:12px; color:var(--muted); line-height:1.5; margin:0 0 13px; }
+  .form-grid { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:11px; align-items:end; }
+  .field { display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .field[hidden], #bpaLegacyWarning[hidden] {display:none!important;}
+  .field label { font-size:11px; font-weight:800; color:#4d5d6d; }
+  select, input[type=number], input[type=date] { min-width:0; width:100%; height:39px; background:white; color:var(--ink); border:1px solid #cbd5e0; border-radius:9px; padding:7px 9px; font-family:inherit; font-size:13px; outline:none; }
+  select:focus, input:focus { border-color:#1b80c5; box-shadow:0 0 0 3px #1b80c51d; }
+  select { cursor:pointer; }
+  .c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
+  .action-row { display:flex; gap:9px; align-items:center; flex-wrap:wrap; margin-top:13px; }
+  button { font-family:inherit; cursor:pointer; border:0; font-weight:750; border-radius:10px; padding:10px 14px; font-size:13px; transition:background .15s ease, transform .15s ease; }
+  button:hover { transform:translateY(-1px); }
+  .primary { background:var(--navy); color:white; }.primary:hover {background:#29506e}
+  .secondary { background:#e7f0f9; color:var(--navy); }.secondary:hover {background:#d4e4f2}
+  .outline { background:white; border:1px solid #cbd4df; color:#37485a; }.outline:hover {background:#f4f7fb}
+  .danger { background:#fcedec; color:#b42a23; }.danger:hover {background:#f9dedb}
+  .tiny { font-size:12px; padding:6px 9px; border-radius:7px; }
+  .data-list { margin-top:15px; border-top:1px solid #e7edf4; }
+  .listrow { display:grid; grid-template-columns:1fr auto auto; align-items:center; padding:9px 0; gap:9px; border-bottom:1px solid #eef1f5; }
+  .listrow .detail { min-width:0; font-size:12px; line-height:1.4; }
+  .listrow .detail strong { font-size:13px; }
+  .listrow .detail .sub { display:block; color:#788698; margin-top:2px; }
+  .qty-inline { width:85px!important; height:32px!important; font-weight:750; text-align:right; }
+  .stock-warehouse-select { width:140px; max-width:100%; height:32px; font-size:11px; border-radius:7px; }
+  .stock-warning { color:#b23b2d!important; font-weight:750; }
+  .stock-location-hint { border-left:3px solid #efad3d; background:#fff9ec; }
+  @media(max-width:520px) { .stock-listrow {grid-template-columns:minmax(0,1fr) auto;}.stock-listrow .stock-warehouse-select{grid-column:1/-1;width:100%;}.stock-listrow .qty-inline{width:80px!important;} }
+
+  .zero { color:#8190a0; font-size:12px; padding:16px 4px; text-align:center; }
+  .divider { border:0; height:1px; margin:16px 0; background:#e4eaf1; }
+  .segment { display:flex; align-items:center; gap:9px; margin:5px 0 10px; font-size:12px; font-weight:800; color:var(--navy); }
+  .segment:before { content:''; width:5px; height:16px; border-radius:2px; background:var(--yellow); }
+
+  /* Konfirmasi pembersihan data kerja. Master tetap tersimpan. */
+  .reset-dialog {width:min(440px,calc(100vw - 28px));max-width:100%;padding:0;border:1px solid #dce3eb;border-radius:15px;box-shadow:0 18px 60px #172f4850;color:var(--ink);font-family:inherit;}
+  .reset-dialog::backdrop {background:rgba(15,31,48,.48);}
+  .reset-dialog-body {padding:22px;}
+  .reset-dialog h3 {margin:0 0 10px;font-size:18px;color:var(--navy);}
+  .reset-dialog p {font-size:13px;line-height:1.6;color:#526578;margin:0 0 12px;}
+  .reset-dialog-note {background:#f0f7f4;color:#245942;padding:9px 11px;border-radius:8px;font-size:12px;line-height:1.5;}
+  .reset-dialog-actions {display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:19px;}
+  .quick-grid { display:grid; grid-template-columns:1fr; gap:5px; margin-top:10px; max-height:410px; overflow:auto; padding:5px; border:1px solid #e3e9f1; border-radius:11px; }
+  .quick-item { display:grid; grid-template-columns:30px minmax(0,1fr) 105px; align-items:center; gap:8px; border:1px solid #e6ecf3; padding:5px 10px; border-radius:8px; background:#fbfcff; }
+  .quick-item .row-num { text-align:center; font-size:11px; color:#8593a2; font-variant-numeric:tabular-nums; }
+  .quick-item label { font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .quick-item input { height:31px; padding:4px 8px; text-align:right; background:#fff; font-variant-numeric:tabular-nums; }
+  .quick-item input.is-zero { background:#f0f4f9; color:#667589; }
+  .paste-panel { margin-top:14px; border:1px solid #b7d6e9; padding:12px; border-radius:11px; background:#f1f8fc; }
+  .paste-panel label { display:block; font-size:12px; font-weight:800; color:#173d5c; margin-bottom:5px; }
+  .paste-panel p { font-size:11px; color:#576c7e; line-height:1.5; margin:0 0 9px; }
+  .paste-panel textarea {display:block; width:100%; height:66px; resize:vertical; border:1px solid #b6cadb; border-radius:8px; padding:9px 10px; font-family:inherit; font-size:12px; line-height:1.4; color:#263b4e; background:white; outline:none; }
+  .paste-panel textarea:focus {border-color:#1b80c5;box-shadow:0 0 0 3px #1b80c51d;}
+  .paste-status { display:flex; flex-wrap:wrap; gap:7px; font-size:11px; color:#586a7d; align-items:center; margin-top:9px; }
+  .paste-status b {color:#1b425e;}
+  /* Input Cepat: panel daftar outlet tertutup secara default. Tombol aksi dan informasi Qty 0 tetap terlihat. */
+  .quick-main-actions {margin:10px 0 14px;}
+  .quick-outlet-details {border:1px solid #d9e4ee;border-radius:10px;background:#fff;overflow:hidden;margin-top:7px;}
+  .quick-outlet-details>summary {display:flex;align-items:center;gap:9px;cursor:pointer;list-style:none;background:#f8fafc;padding:13px 12px;color:#23435f;font-size:12px;font-weight:800;user-select:none;}
+  .quick-outlet-details>summary::-webkit-details-marker {display:none;}
+  .quick-outlet-details>summary::before {content:'▶';font-size:11px;color:#5c7188;flex-shrink:0;}
+  .quick-outlet-details[open]>summary::before {content:'▼';}
+  .quick-outlet-details>summary:hover {background:#eff5fa;}
+  .quick-outlet-details>summary:focus-visible {outline:2px solid #1b80c5;outline-offset:-3px;}
+  .quick-outlet-title {flex:1;min-width:0;}
+  .quick-outlet-meta {font-size:11px;font-weight:600;color:#657991;white-space:nowrap;}
+  .quick-outlet-body {border-top:1px solid #e4ebf3;padding:1px 8px 10px;}
+  .quick-outlet-body .quick-colhead {margin-top:10px;}
+  .quick-outlet-body .quick-grid {margin-top:7px;}
+  @media(max-width:520px){.quick-outlet-details>summary{flex-wrap:wrap}.quick-outlet-meta{margin-left:18px;}}
+  /* Daftar stok: hanya list yang dapat dibuka/tutup; form input tetap terlihat. */
+  .stock-details {border:1px solid #d9e4ee;border-radius:10px;background:#fff;overflow:hidden;margin-top:15px;}
+  .stock-details > summary {display:flex;align-items:center;gap:9px;cursor:pointer;list-style:none;background:#f8fafc;padding:13px 12px;color:#23435f;font-size:12px;font-weight:800;user-select:none;}
+  .stock-details > summary::-webkit-details-marker {display:none;}
+  .stock-details > summary::before {content:'▶';font-size:11px;color:#5c7188;flex-shrink:0;}
+  .stock-details[open] > summary::before {content:'▼';}
+  .stock-details > summary:hover {background:#eff5fa;}
+  .stock-details > summary:focus-visible {outline:2px solid #1b80c5;outline-offset:-3px;}
+  .stock-details-title {flex:1;min-width:0;}
+  .stock-details-meta {font-size:11px;font-weight:600;color:#657991;white-space:nowrap;}
+  .stock-details-body {padding:0 12px 12px;border-top:1px solid #e4ebf3;max-height:430px;overflow-y:auto;}
+  .stock-details-body .data-list {margin-top:0;border-top:0;}
+  .stock-details-body .listrow:last-child {border-bottom:0;}
+  @media(max-width:520px){.stock-details>summary{flex-wrap:wrap}.stock-details-meta{margin-left:18px;}}
+  .quick-colhead { display:flex; align-items:center; justify-content:space-between; font-size:11px; font-weight:800; color:#455c70; margin:13px 5px 3px; }
+  .quick-zero-hint { background:#fff8e6; border-left:3px solid #f6bb45; border-radius:5px; padding:7px 10px; font-size:11px; color:#785a20; margin-top:9px; }
+
+  /* Daftar Kebutuhan dikelompokkan per SKU; tiap grup dapat dibuka/ditutup mandiri. */
+  #demandList.demand-sku-groups { margin-top:13px; border-top:0; display:flex; flex-direction:column; gap:8px; }
+  .demand-sku-group { border:1px solid #dae4ee; border-radius:10px; background:white; overflow:hidden; }
+  .demand-sku-group > summary { list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; background:#f8fafc; padding:12px 13px; color:#24435e; font-size:12px; font-weight:800; user-select:none; }
+  .demand-sku-group > summary::-webkit-details-marker { display:none; }
+  .demand-sku-group > summary::before { content:'▶'; font-size:11px; color:#5b7086; flex-shrink:0; }
+  .demand-sku-group[open] > summary::before { content:'▼'; }
+  .demand-sku-group > summary:hover { background:#eff5fa; }
+  .demand-sku-group > summary:focus-visible { outline:2px solid #1b80c5; outline-offset:-3px; }
+  .demand-sku-group .demand-sku-title { display:flex; align-items:center; gap:9px; flex:1; min-width:0; }
+  .demand-sku-group .demand-sku-marker { width:5px; height:20px; flex:0 0 5px; border-radius:5px; background:var(--sku-color); border:1px solid #0002; }
+  .demand-sku-group .demand-sku-name { min-width:0; overflow-wrap:anywhere; }
+  .demand-sku-group .demand-sku-meta { font-size:11px; font-weight:600; color:#6d7d90; white-space:nowrap; }
+  .demand-sku-group .demand-sku-rows { padding:2px 12px 5px; max-height:350px; overflow:auto; border-top:1px solid #e7edf4; }
+  .demand-sku-group .listrow:last-child { border-bottom:0; }
+  @media(max-width:520px) { .demand-sku-group > summary { flex-wrap:wrap; } .demand-sku-group .demand-sku-meta { margin-left:24px; } }
+  .checkline { display:flex; align-items:center; gap:8px; padding:9px 0 0; color:#4e5f70; font-size:12px; }
+  .checkline input { accent-color:#1d4968; width:15px; height:15px; }
+  .note-box { margin:13px 0 0; padding:10px 12px; border-radius:10px; background:#f5f8fc; color:#506176; font-size:12px; line-height:1.55; border:1px solid #e2e8ef; }
+  .preview-card { margin-top:4px; }
+  .preview-head { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; border-bottom:1px solid #dde4ec; padding:20px; background:white; }
+  .preview-head h2 { font-size:19px; color:#182d44; margin:0 0 4px; }
+  .preview-head p { margin:0; font-size:12px; color:var(--muted); }
+  .preview-actions { display:flex; flex-wrap:wrap; gap:8px; }
+  #resultArea { padding:24px 18px 27px; background:#fff; }
+  .sheet-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; column-gap:32px; row-gap:22px; margin:0 0 25px; }
+  .ship-column { display:flex; flex-direction:column; gap:21px; min-width:0; }
+  .po-table { width:100%; table-layout:fixed; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif; font-size:12.5px; color:#090909; background:#fff; line-height:1.12; }
+  .po-table th, .po-table td { border:1px solid #161616; padding:4px 5px; height:24px; vertical-align:middle; }
+  .po-table tbody td:nth-child(3) { text-align:right; }
+  .po-table tbody td.no-cell { text-align:center; font-variant-numeric:tabular-nums; }
+  .po-table .first { text-align:left; font-weight:700; white-space:nowrap; }
+  .po-table .supplier { text-align:left; font-weight:700; white-space:nowrap; }
+  .po-table .price { text-align:right; font-weight:700; background-color:var(--sku-color,var(--yellow)); white-space:nowrap; }
+  .po-table .subhead th { background-color:var(--sku-color,var(--yellow)); font-weight:700; text-align:left; }
+  .po-table .subhead .uom { text-align:left; }
+  .po-table .total td { height:26px; font-weight:700; }
+  .po-table .total .total-qty { text-align:right; font-weight:800; }
+  .po-table .no-col { width:7%; }.po-table .name-col { width:36%; }.po-table .qty-col { width:14.5%; }.po-table .notes-col { width:42.5%; }
+  .po-table .note-cell { overflow-wrap:break-word; background-color:#fff; }
+  /* Warnai hanya catatan Request 00.00-06.00, sesuai warna SKU tabel. */
+  .po-table .note-cell.early-request { background-color:var(--sku-color,var(--yellow)); }
+  .po-table tr { break-inside:avoid; page-break-inside:avoid; }
+  .table-wrap { break-inside:avoid; page-break-inside:avoid; min-width:0; }
+  .table-mini-label { display:flex; gap:7px; align-items:center; justify-content:flex-end; color:#8a97a6; font-size:10px; margin-top:5px; }
+  .empty-output { min-height:210px; display:grid; place-items:center; text-align:center; color:#8a98a8; border:2px dashed #e2e9f0; border-radius:14px; padding:30px; }
+  .empty-output b { display:block; color:#5c6c7e; font-size:15px; margin-bottom:7px; }
+  .pending { border:1px solid #f2c79c; background:#fff9ed; padding:15px 16px; color:#784e20; border-radius:11px; margin:0 0 6px; }
+  .pending h3 { margin:0 0 9px; font-size:14px; }
+  .pending p { margin:4px 0; font-size:12px; }
+  /* Ringkasan per SKU hanya di layar; format PO cetak tetap utuh. */
+  .po-summary { border:1px solid #dce5ee; border-radius:12px; padding:15px 16px; margin:0 0 21px; background:#fbfcff; }
+  .po-summary .summary-top { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:12px; }
+  .po-summary .summary-title { margin:0; font-size:15px; font-weight:800; color:#1b344a; }
+  .po-summary .summary-subtitle { margin:3px 0 0; font-size:11px; color:#718094; }
+  .po-summary .table-counter { display:flex; gap:11px; align-items:center; padding:9px 13px; border:1px solid #d6e2ee; border-radius:9px; background:#edf4fb; color:#465f75; font-size:11px; }
+  .po-summary .table-counter b { font-size:21px; color:#17334c; line-height:1; }
+  .po-summary .summary-label {font-size:12px;font-weight:800;color:#2a455d;margin:9px 0;}
+  .po-summary .summary-scroll {overflow-x:auto; border:1px solid #dde6ee; border-radius:9px; background:white;}
+  .po-summary .sku-summary-table {width:100%;border-collapse:collapse;font-size:12px;min-width:450px;}
+  .po-summary .sku-summary-table th {padding:10px 12px;background:#f2f6fa;text-align:right;font-size:11px;color:#52667b;white-space:nowrap;}
+  .po-summary .sku-summary-table th:first-child {text-align:left;}
+  .po-summary .sku-summary-table td {padding:11px 12px;border-top:1px solid #e7edf3;text-align:right;font-variant-numeric:tabular-nums;font-weight:650;color:#263a50;}
+  .po-summary .sku-summary-table td:first-child {text-align:left;font-weight:500;}
+  .po-summary .sku-name-wrap {display:flex;gap:9px;align-items:center;}
+  .po-summary .sku-swatch {width:6px;min-width:6px;height:34px;border-radius:4px;background:var(--sku-accent);border:1px solid #0001;}
+  .po-summary .sku-caption strong {display:block;color:#223a50;font-size:12px;line-height:1.25;}
+  .po-summary .sku-caption small {display:block;color:#728398;font-size:10px;margin-top:3px;}
+  .po-summary .sku-summary-table tfoot td {background:#f1f5fa;font-weight:800;color:#1a3650;border-top:2px solid #cedbe7;}
+  .po-summary .summary-info {margin:9px 0 0;font-size:10.5px;color:#708092;line-height:1.5;}
+  .po-summary .summary-rounding {margin:10px 0 0;background:#fff7e9;border-left:3px solid #e6a12c;border-radius:5px;padding:9px 11px;font-size:11px;line-height:1.6;color:#735122;}
+  /* Ringkasan nilai PO hanya tampil di dashboard, tidak pada cetak atau hasil HTML pengiriman. */
+  .supplier-finance {border:1px solid #dce5ee;border-radius:12px;padding:0;margin:0 0 23px;background:#fff;overflow:hidden;}
+  .supplier-finance > summary {display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;padding:15px 16px;user-select:none;min-height:60px;}
+  .supplier-finance > summary::-webkit-details-marker {display:none;}
+  .supplier-finance > summary::before {content:"▶";display:inline-block;color:#476078;font-size:12px;flex:0 0 12px;}
+  .supplier-finance[open] > summary::before {content:"▼";}
+  .supplier-finance > summary:hover {background:#f6f9fc;}
+  .supplier-finance > summary:focus-visible {outline:2px solid #2768b9;outline-offset:-3px;}
+  .supplier-finance-summary-text {flex:1;min-width:0;}
+  .supplier-finance-summary-hint {display:block;font-size:11px;color:#718094;margin-top:3px;line-height:1.45;}
+  .supplier-finance-summary-hint .hint-open {display:none;}
+  .supplier-finance[open] .supplier-finance-summary-hint .hint-open {display:inline;}
+  .supplier-finance[open] .supplier-finance-summary-hint .hint-closed {display:none;}
+  .supplier-finance-summary-action {font-size:11px;color:#718094;flex:0 0 auto;}
+  .supplier-finance-summary-action .action-open {display:none;}
+  .supplier-finance[open] .supplier-finance-summary-action .action-open {display:inline;}
+  .supplier-finance[open] .supplier-finance-summary-action .action-closed {display:none;}
+  .supplier-finance-body {padding:14px 16px 16px;border-top:1px solid #e7edf3;}
+
+  .supplier-finance-title {font-size:15px;font-weight:800;color:#1b344a;margin:0 0 4px;}
+  .supplier-finance-caption {margin:0 0 14px;font-size:11px;color:#718094;line-height:1.55;}
+  .supplier-finance-metrics {display:grid;grid-template-columns:1fr 1.8fr;gap:10px;margin-bottom:14px;}
+  .supplier-finance-metric {padding:13px;border:1px solid #dae5ef;border-radius:10px;background:#f4f8fc;min-width:0;}
+  .supplier-finance-metric span {display:block;font-size:11px;color:#52677d;margin-bottom:5px;}
+  .supplier-finance-metric strong {display:block;font-size:20px;color:#183750;font-weight:800;overflow-wrap:anywhere;}
+  .supplier-finance-filter {display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;}
+  .supplier-finance-filter label {font-size:11px;font-weight:800;color:#344f65;}
+  .supplier-finance-filter select {width:min(100%,290px);height:37px;}
+  .supplier-finance-card {border:1px solid #dde6ef;border-radius:10px;overflow:hidden;margin-top:11px;}
+  .supplier-finance-head {display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#f1f5fa;padding:10px 12px;}
+  .supplier-finance-head strong {color:#1d3b53;font-size:13px;}
+  .supplier-finance-head span {color:#334b60;font-size:12px;font-weight:800;}
+  .supplier-finance-scroll {overflow:auto;}
+  .supplier-finance-table {width:100%;border-collapse:collapse;min-width:560px;font-size:12px;}
+  .supplier-finance-table th {background:#f9fbfe;color:#51667d;font-size:11px;font-weight:800;text-align:right;padding:9px 10px;white-space:nowrap;}
+  .supplier-finance-table th:first-child,.supplier-finance-table td:first-child {text-align:left;}
+  .supplier-finance-table td {border-top:1px solid #e7edf3;padding:10px;text-align:right;font-variant-numeric:tabular-nums;vertical-align:middle;}
+  .supplier-finance-sku {display:flex;align-items:center;gap:8px;white-space:nowrap;font-weight:700;color:#254055;}
+  .supplier-finance-sku i {display:inline-block;width:6px;height:24px;min-width:6px;border:1px solid #0002;border-radius:4px;background:var(--sku-color);}
+  .supplier-finance-sku small {display:block;font-size:10px;font-weight:500;color:#728499;margin-top:2px;}
+  .supplier-finance-total {margin:14px 0 0;border-top:1px solid #dbe3eb;padding:13px 2px 0;display:flex;gap:14px;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+  .supplier-finance-total span {font-size:12px;font-weight:800;color:#345068;}
+  .supplier-finance-total strong {font-size:19px;color:#183750;}
+  .supplier-finance-missing {color:#a34a24;font-weight:750;font-size:11px;}
+  .supplier-finance-note {background:#fff8eb;border-left:3px solid #e5a72c;border-radius:5px;padding:9px 11px;font-size:11px;color:#795b27;margin-top:12px;line-height:1.5;}
+  .supplier-finance-empty {font-size:12px;color:#64778a;border:1px dashed #dbe5ef;border-radius:9px;padding:16px;}
+  @media(max-width:600px) {.supplier-finance-metrics{grid-template-columns:1fr}.supplier-finance-metric strong{font-size:18px}.supplier-finance-filter select{width:100%}}
+
+  .toast { position:fixed; bottom:24px; left:50%; transform:translate(-50%,25px); opacity:0; pointer-events:none; background:#1e364c; color:#fff; padding:12px 18px; border-radius:10px; box-shadow:0 6px 20px #15283d40; transition:.2s; z-index:40; max-width:90vw; text-align:center; }
+  .toast.show {opacity:1;transform:translate(-50%,0)}
+  .master-price-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;}
+  .master-price-row {border:1px solid #e0e7ef;border-radius:10px;padding:10px;background:#fafcff;min-width:0;}
+  .master-price-row label {display:block;font-size:11px;font-weight:800;color:#35485e;margin-bottom:6px;}
+  .master-price-row input {width:100%;height:36px;border:1px solid #cbd5e0;border-radius:8px;padding:6px 8px;font:inherit;}
+  .restriction-switch {display:flex;align-items:center;justify-content:space-between;gap:13px;border:1px solid #d4e3f0;background:#f0f7ff;padding:13px 14px;border-radius:11px;}
+  .restriction-switch strong {font-size:13px;color:#173b57;display:block;margin-bottom:4px;}
+  .restriction-switch small {font-size:11px;line-height:1.5;color:#526c7f;display:block;}
+  .restriction-switch input {appearance:none;-webkit-appearance:none;width:48px;height:28px;min-width:48px;border-radius:16px;position:relative;cursor:pointer;background:#b6c1cd;outline:none;transition:background .15s;}
+  .restriction-switch input:before {content:'';position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:100%;background:white;box-shadow:0 1px 3px #0003;transition:transform .15s;}
+  .restriction-switch input:checked {background:#157b57;}
+  .restriction-switch input:checked:before {transform:translateX(20px);}
+  .restriction-switch input:focus-visible {outline:3px solid #77abe5;outline-offset:2px;}
+  .rule-status {font-size:11px;font-weight:800;display:inline-block;padding:4px 8px;border-radius:6px;background:#e8edf3;color:#526174;white-space:nowrap;}
+  .rule-status.is-active {background:#dff4e8;color:#116240;}
+  .restriction-edit {margin-top:14px;border:1px solid #e2e9f1;padding:13px;border-radius:11px;}
+  .restriction-outlets {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 10px;max-height:260px;overflow:auto;border:1px solid #e3e9f1;border-radius:9px;padding:8px;background:#fbfcff;margin-top:8px;}
+  .restriction-outlets label {display:flex;align-items:center;gap:7px;min-width:0;border-radius:6px;padding:5px;font-size:12px;cursor:pointer;}
+  .restriction-outlets label:hover {background:#edf4fb;}
+  .restriction-outlets input {accent-color:#1f567b;width:15px;height:15px;flex-shrink:0;margin:0;}
+  .rule-list {display:grid;gap:7px;margin-top:11px;}
+  .rule-row {display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid #e0e8f0;border-radius:9px;background:#fbfcff;}
+  .rule-row .desc {flex:1;min-width:0;}
+  .rule-row .desc strong {font-size:12px;color:#2b4255;display:block;}
+  .rule-row .desc span {font-size:11px;color:#697b8c;line-height:1.5;}
+  .note-exception-list {margin-top:14px;overflow:hidden;border:1px solid #e1e8ef;border-radius:10px;}
+  .note-exception-head,.note-exception-row {display:grid;grid-template-columns:minmax(95px,1fr) minmax(160px,1.7fr) auto;gap:8px;align-items:center;padding:10px 11px;}
+  .note-exception-head {background:#f0f5fa;color:#334c65;font-size:11px;font-weight:800;}
+  .note-exception-row {border-top:1px solid #e7edf4;font-size:12px;}
+  .note-exception-row:nth-child(even) {background:#fbfcff;}
+  .note-exception-row .note-value {overflow-wrap:anywhere;color:#4e6379;}
+  .note-exception-row .note-actions {display:flex;flex-wrap:wrap;gap:5px;}
+  .route-master {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px;}
+  .route-master-row {display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;border:1px solid #e2e8ee;border-radius:8px;font-size:12px;}
+  .route-master-row select {max-width:135px;height:32px;font-size:11px;}
+  details.master-details>summary {cursor:pointer;font-weight:800;color:#28455d;padding:7px 0;}
+  details.master-details>summary:focus-visible {outline:2px solid #1b80c5;outline-offset:3px;border-radius:3px;}
+  details.master-details[open]>summary {margin-bottom:10px;}
+  .pill-tag { font-size:10px; color:#347050; font-weight:750; background:#edf9f0; border:1px solid #ccedd5; padding:4px 7px; border-radius:99px; }
+  footer { font-size:11px; color:#8c9aaa; max-width:1480px; padding:0 23px 25px; margin:auto; }
+  @media(max-width:1120px){ .layout{grid-template-columns:1fr}.sheet-grid{column-gap:18px}.po-table{font-size:11.5px}.po-table th,.po-table td{padding:4px 3px} }
+  @media(max-width:710px) { .note-exception-head,.note-exception-row{grid-template-columns:minmax(65px,1fr) minmax(105px,1.4fr) auto;gap:5px;padding:8px 6px;} .note-exception-row .note-actions{flex-direction:column;} .master-price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.route-master{grid-template-columns:1fr}.restriction-outlets{grid-template-columns:1fr} .head {align-items:flex-start}.head-stamp{display:none}main{padding:14px 10px 35px}.card-hd,.body{padding:14px}.quick-grid{grid-template-columns:1fr}.c2,.c3,.c4,.c5,.c6,.c7,.c8{grid-column:span 6}.sheet-grid{grid-template-columns:1fr}.ship-column{gap:15px}.po-table{font-size:11.5px}.preview-head{padding:14px}.preview-actions{gap:6px}#resultArea{padding:12px 9px}.pill{padding:9px 10px}.pill b{font-size:16px} }
+
+  /* Satu halaman hasil untuk satu supplier; urutan posisi vertikal: kiri atas, kiri bawah, kanan atas, kanan bawah. */
+  .supplier-page {border-bottom:1px solid #e1e8f0; padding-bottom:22px; margin-bottom:25px; min-width:0;}
+  .supplier-page:last-child {border-bottom:0; padding-bottom:0; margin-bottom:0;}
+  .supplier-page-title {display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px;color:#29455e;font-size:13px;font-weight:800;}
+  .supplier-page-subtitle {font-size:11px;color:#6f8192;font-weight:500;}
+  .supplier-page .sheet-grid {margin:0;}
+  @media print {
+    /* Print A4 landscape: setiap supplier-page adalah satu lembar PDF. */
+    #tablesOnly .supplier-page {break-inside:avoid;page-break-inside:avoid;margin:0!important;padding:0!important;border:0!important;}
+    #tablesOnly .supplier-page + .supplier-page {break-before:page;page-break-before:always;}
+    #tablesOnly .supplier-page .sheet-grid {display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:7mm!important;row-gap:0!important;align-items:start;margin:0!important;}
+    #tablesOnly .supplier-page .ship-column {gap:5mm!important;}
+    #tablesOnly .supplier-page .po-table {font-size:var(--po-font-size,8.5px)!important;line-height:1.03!important;}
+    #tablesOnly .supplier-page .po-table th,#tablesOnly .supplier-page .po-table td {height:var(--po-row-height,15px)!important;padding:1px 2px!important;}
+    #tablesOnly .supplier-page .po-table .total td {height:var(--po-row-height,15px)!important;}
+    #tablesOnly .supplier-page .table-wrap {break-inside:avoid!important;page-break-inside:avoid!important;}
+    #resultArea>.pending {break-before:page;page-break-before:always;}
+  }
+  @page { size:A4 landscape; margin:11mm 9mm; }
+  @media print { html, body { background:#fff!important; color:#000; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+    header, main>.pill-row, .layout, .preview-head, footer, .no-print, .toast {display:none!important}
+    main {max-width:none; padding:0!important; margin:0!important}
+    .card.preview-card {border:0;box-shadow:none;overflow:visible;margin:0;border-radius:0}
+    #resultArea { padding:0!important; }
+    .sheet-grid { grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:8mm; row-gap:5mm; margin-bottom:5mm; }
+    .ship-column {gap:6mm}.po-table{font-size:10px}.po-table th,.po-table td{padding:3px 4px;height:20px}
+    .table-mini-label,.summary{display:none!important}.po-table .price,.po-table .subhead th,.po-table .note-cell.early-request{background-color:var(--sku-color,#f8be18)!important;print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}
+    .pending{background:#fff9ed!important}
+  }
+
+  /* Generator PO Beta: ergonomi layar HP, hanya untuk UI Android/handphone. */
+  @media screen and (max-width:710px){
+    .head{padding:19px 15px 17px;}
+    h1{font-size:26px;letter-spacing:-.4px;}
+    main{padding:11px 9px 65px;}
+    .card{border-radius:12px;margin-bottom:13px;}
+    .form-grid{gap:9px;}
+    .form-grid .c2,.form-grid .c3,.form-grid .c4,.form-grid .c5,.form-grid .c6,.form-grid .c7,.form-grid .c8 {grid-column:span 6;}
+    .action-row button,.preview-actions button{min-height:42px;}
+    .master-details>summary,.quick-outlet-details>summary,.stock-details>summary,.supplier-finance>summary{min-height:45px;}
+    .preview-head{align-items:stretch;}
+    .preview-actions{width:100%;}
+    .preview-actions button{flex:1 1 130px;}
+    .po-table{font-size:10px;}
+    .po-table .notes-col{width:42%;}
+    .reset-dialog{margin:auto;}
+  }
+</style>
+</head>
+<body>
+<header class="no-print">
+  <div class="head">
+    <div>
+      <div class="eyebrow">PT Reka Cipta Selera · SCM</div>
+      <h1>Generator PO <span style="color:#ffd455">Beta</span></h1>
+      <p>Input stok supplier dalam Pack/Ekor; input kebutuhan Dada Paha Atas dan Fillet dalam PCS (10 PCS = 1 Pack), Ayam Utuh dalam Ekor. Tabel PO tetap memakai Pack/Ekor.</p>
+    </div>
+    <div class="head-stamp">ANDROID BETA · V6</div>
+  </div>
+</header>
+<main>
+  <div class="pill-row no-print" id="metrics">
+    <div class="pill"><span>Supplier</span> <b id="supplierCount">0</b></div>
+    <div class="pill"><span>Stok SKU–supplier</span> <b id="stockCount">0</b></div>
+    <div class="pill"><span>Baris kebutuhan</span> <b id="demandCount">0</b></div>
+    <div class="pill"><span>Outlet master</span> <b>29</b></div>
+  </div>
+  <div class="layout no-print">
+    <section>
+      <div class="card">
+        <div class="card-hd"><h2><span class="step">1</span> Stok Supplier</h2><span class="pill-tag">Input manual hanya qty</span></div>
+        <div class="body">
+          <p class="hint">Supplier dan SKU dipilih dari list. Khusus BPA, stok dicatat <b>terpisah per gudang</b>, yaitu Gudang Bandung untuk Rute Bandung dan Gudang Jakarta untuk Rute Jakarta. Stok dari kedua gudang tidak dapat digabung atau saling dipakai.</p>
+          <form id="stockForm" class="form-grid" autocomplete="off">
+            <div class="field c5"><label for="stockSupplier">Supplier</label><select id="stockSupplier" required></select></div>
+            <div class="field c5"><label for="stockSku">SKU</label><select id="stockSku" required></select></div>
+            <div class="field c2"><label for="stockQty" id="stockQtyLabel">Qty stok (Pack)</label><input id="stockQty" type="number" min="1" step="1" placeholder="0" required /></div>
+            <div class="field c12" id="stockWarehouseField" hidden><label for="stockWarehouse">Gudang stok BPA (wajib pilih)</label><select id="stockWarehouse" disabled><option value="">Pilih gudang BPA</option><option value="Bandung">Gudang Bandung — Rute Bandung</option><option value="Jakarta">Gudang Jakarta — Rute Jakarta</option></select></div>
+            <div class="c12"><button class="primary" type="submit">+ Tambahkan stok</button></div>
+          </form>
+          <!-- Daftar stok saja di-collapse; tambah stok, peringatan gudang, dan informasi UOM tetap terlihat. -->
+          <details class="stock-details" id="stockListPanel">
+            <summary><span class="stock-details-title">Daftar Stok Supplier</span><span class="stock-details-meta" id="stockListMeta">0 data stok tersimpan</span></summary>
+            <div class="stock-details-body">
+              <div id="stockList" class="data-list"><div class="zero">Belum ada stok supplier.</div></div>
+            </div>
+          </details>
+          <div id="bpaLegacyWarning" class="note-box stock-location-hint" hidden><b>Perhatian:</b> Ada stok BPA dari backup lama yang belum memiliki gudang. Pilih Gudang Bandung/Jakarta pada baris stok tersebut agar dapat digunakan. Stok yang belum ditentukan gudangnya <b>tidak akan dialokasikan</b> ke rute mana pun.</div>
+          <div class="note-box">Stok supplier tetap diinput dalam <b>UOM PO</b>: Pack untuk Dada Paha Atas/Fillet, Ekor untuk Ayam Utuh. Hanya input <b>kebutuhan outlet</b> Dada Paha Atas/Fillet yang memakai PCS. <b>Khusus BPA:</b> Gudang Bandung melayani hanya Rute Bandung, Gudang Jakarta hanya Rute Jakarta. Aturan tetap berlaku ketika opsi pembatasan supplier OFF.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h2><span class="step">2</span> Input Cepat Kebutuhan PO</h2></div>
+        <div class="body">
+          <p class="hint">Salin <b>satu kolom Qty kebutuhan</b> dari Google Sheets/Excel, lalu tempel di kotak berikut. Dada Paha Atas/Fillet menggunakan <b>PCS</b>, Ayam Utuh menggunakan <b>Ekor</b>. Nilai ditempatkan menurut urutan outlet yang tampil.</p>
+          <p class="hint">Pilih <b>All Rute</b> untuk menampilkan seluruh 29 outlet, atau pilih Rute Bandung/Jakarta untuk memfilter outlet. Hasil PO tetap dipisahkan otomatis menurut rute masing-masing outlet.</p>
+          <div class="form-grid">
+            <div class="field c6"><label for="quickSku">SKU</label><select id="quickSku"></select></div>
+            <div class="field c6"><label for="quickSupplier">Supplier pilihan</label><select id="quickSupplier"></select></div>
+            <div class="field c6"><label for="quickRequest">Tanggal request</label><input id="quickRequest" type="date" /></div>
+            <div class="field c6"><label for="quickShip">Tanggal kirim</label><input id="quickShip" type="date" /></div>
+            <div class="field c12"><label for="quickBatch">Rute kiriman</label><select id="quickBatch"></select></div>
+          </div>
+          <div class="note-box" id="quickConversionHint" style="margin:12px 0">Dada Paha Atas / Fillet: input PCS → dibagi 10 menjadi Pack → dibulatkan menurut supplier. Ayam Utuh: input Ekor.</div>
+          <div class="paste-panel">
+            <label for="qtyPaste" id="pasteQtyLabel">Tempel kolom Qty (PCS) dari Google Sheets / Excel</label>
+            <p>Blok hanya sel angka Qty (termasuk 0), tekan <b>Ctrl+C</b>, lalu <b>Ctrl+V</b> di sini. Satu baris = satu outlet, urutan mengikuti daftar di bawah. Tidak perlu mengetik satu per satu.</p>
+            <textarea id="qtyPaste" placeholder="Contoh:
+25
+25
+0
+25
+0" spellcheck="false" aria-label="Tempel satu kolom angka Qty"></textarea>
+            <div class="action-row" style="margin-top:8px"><button id="applyPaste" class="primary" type="button">Terapkan Qty Hasil Paste</button><button id="clearPaste" class="outline tiny" type="button">Bersihkan Kotak Paste</button></div>
+            <div id="pasteStatus" class="paste-status" role="status" aria-live="polite">Pilih rute untuk menampilkan urutan outlet.</div>
+          </div>
+          <p class="hint"><b>Catatan otomatis:</b> Yamiku dan BSD → Request 00.00-06.00; Japfa, TMS, BPA, SREEYA, BIF, MBU → No Lunch Time (11.00 - 13.00 WIB). Pengecualian outlet di Informasi Master didahulukan. Catatan ditentukan dari supplier hasil alokasi.</p>
+          <!-- Tombol aksi berada di LUAR daftar outlet agar tetap dapat digunakan saat panel tertutup. -->
+          <div class="quick-zero-hint"><b>Qty = 0</b> tetap tersimpan sebagai kebutuhan outlet, tetapi baris tersebut tidak tampil pada tabel PO akhir dan tidak mengurangi stok supplier.</div>
+          <div class="action-row quick-main-actions"><button id="quickAdd" class="secondary" type="button">+ Simpan Semua Qty Terisi</button><button id="quickClear" class="outline" type="button">Kosongkan Qty Cepat</button></div>
+          <!-- Hanya daftar outlet yang di-collapse; input tetap berada di DOM untuk paste dan simpan. -->
+          <details class="quick-outlet-details" id="quickOutletPanel">
+            <summary><span class="quick-outlet-title">Daftar Outlet — Input Qty</span><span class="quick-outlet-meta" id="quickOutletMeta">29 outlet · 0 qty terisi</span></summary>
+            <div class="quick-outlet-body">
+              <div class="quick-colhead"><span>Urutan outlet sesuai master</span><span id="quickQtyHeading">Qty kebutuhan (PCS)</span></div>
+              <div id="quickGrid" class="quick-grid"></div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="card">
+        <div class="card-hd"><h2><span class="step">3</span> Daftar Kebutuhan</h2><span id="needBadge" style="font-size:11px;color:var(--muted)">0 item</span></div>
+        <div class="body">
+          <div class="hint">Klik SKU untuk membuka/menutup daftar kebutuhannya. Qty kebutuhan Dada Paha Atas/Fillet tercatat sebagai <b>PCS</b> (10 PCS = 1 Pack); Ayam Utuh sebagai <b>Ekor</b>. Qty 0 tetap tercatat tetapi tidak masuk output tabel PO.</div>
+          <div id="demandList" class="data-list demand-sku-groups" aria-label="Daftar kebutuhan berdasarkan tiga SKU"></div>
+          <label class="checkline"><input type="checkbox" id="allowFallback" /> Jika stok supplier pilihan kurang, boleh dialihkan ke supplier lain.</label>
+          <div class="note-box">Pemilihan supplier <b>Otomatis</b> mempertimbangkan harga yang sudah diketahui, lalu urutan daftar supplier. Harga yang belum diisi tidak diasumsikan dan dapat diperbarui melalui Master Harga. Pengalihan tidak akan melewati stok tersedia.</div>
+          <div class="note-box"><b>Stok BPA berdasarkan gudang:</b> Rute Bandung hanya mengambil BPA Gudang Bandung; Rute Jakarta hanya mengambil BPA Gudang Jakarta. Jika stok gudang rute terkait tidak mencukupi, kebutuhan masuk Pending atau dialihkan ke supplier lain bila diperbolehkan. <b>Stok kedua gudang tidak saling dipinjam.</b></div>
+          <div class="note-box"><b>Pembulatan Qty PO otomatis (per outlet dan supplier):</b> Yamiku: Dada Paha Atas ×25, Utuh ×25; Japfa/TMS/BPA/BSD/SREEYA/BIF/MBU: Dada Paha Atas ×20, Utuh ×25; khusus BPA: Fillet ×20. SKU tanpa kelipatan khusus memakai kelipatan 1 pada UOM PO (Pack/Ekor). Hasil dibulatkan ke kelipatan <b>terdekat</b>, naik atau turun; jika hasilnya <b>0</b>, outlet tidak muncul di tabel. Untuk Dada Paha Atas dan Fillet, konversi PCS ÷ 10 dilakukan <b>sebelum</b> pembulatan Pack; stok supplier tetap dalam Pack. Pembulatan mengikuti stok yang tersedia, dan input PCS asli tidak berubah.</div>
+          <div class="action-row"><button id="calcBtn" class="primary" type="button">Hitung Alokasi & Tampilkan Tabel</button><button id="demoBtn" class="secondary" type="button">Muat Contoh dari Gambar</button><button id="resetBtn" class="danger" type="button">Bersihkan Data Input</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h2>Informasi Master</h2></div>
+        <div class="body">
+          <div class="hint"><b>Supplier (8):</b> Yamiku, Japfa, TMS, BPA, BSD, SREEYA, BIF, MBU. Khusus <b>BPA</b>: stok dua gudang dipisah (Bandung untuk Rute Bandung; Jakarta untuk Rute Jakarta).</div>
+          <div class="hint"><b>SKU (3):</b> Ayam Dada Paha Atas (input PCS, hasil Pack), Ayam Utuh (input/hasil Ekor), Ayam Fillet (input PCS, hasil Pack).</div>
+          <div class="note-box"><b>Master harga dapat diubah:</b> input nominal rupiah per UOM utama untuk setiap pasangan supplier–SKU. Kosong berarti harga belum tersedia. Contoh awal: <b>Yamiku / Ayam Utuh = Rp29.920</b>. Harga otomatis muncul di header tabel dan digunakan untuk prioritas supplier termurah.</div>
+          <details class="master-details" id="masterPricePanel"><summary>Update Harga SKU per Supplier</summary>
+            <div class="form-grid" style="margin-bottom:12px"><div class="field c6"><label for="masterSupplier">Pilih Supplier</label><select id="masterSupplier"></select></div><div class="field c6"><label>Harga disimpan otomatis</label><div style="font-size:11px;color:#718195;line-height:35px">Rupiah / Pack atau Ekor</div></div></div>
+            <div id="masterPriceGrid" class="master-price-grid"></div>
+            <div class="action-row"><button id="clearPriceBtn" class="outline tiny" type="button">Kosongkan harga supplier terpilih</button></div>
+          </details>
+          <hr class="divider" />
+          <details class="master-details" id="masterSupplierRulesPanel"><summary>Aturan Supplier — Tidak Bisa Kirim ke Outlet</summary>
+            <p class="hint">Pilih <b>1 supplier</b> dan centang <b>beberapa outlet</b> yang tidak dapat dilayani. Aturan berlaku untuk semua SKU, dan dapat disimpan meski pengaturan utama sedang OFF.</p>
+          <div class="restriction-switch">
+            <div><strong>Aktifkan Pembatasan Supplier <span id="restrictionStatus" class="rule-status">OFF</span></strong><small id="restrictionHelp">OFF: aturan tetap tersimpan, namun tidak dipakai ketika menghitung alokasi.</small></div>
+            <input id="restrictionEnabled" type="checkbox" role="switch" aria-label="Aktifkan Pembatasan Supplier" aria-checked="false" />
+          </div>
+          <div class="restriction-edit">
+            <div class="field"><label for="ruleSupplier">Supplier yang dibatasi (pilih satu)</label><select id="ruleSupplier"></select></div>
+            <div class="action-row" style="justify-content:space-between"><span style="font-size:12px;font-weight:800;color:#43576c">Outlet yang tidak bisa dikirim <span id="ruleDraftCount" class="rule-status">0 outlet</span></span><div style="display:flex;gap:6px"><button id="ruleSelectAll" type="button" class="outline tiny">Pilih Semua</button><button id="ruleClearSelection" type="button" class="outline tiny">Kosongkan</button></div></div>
+            <div class="restriction-outlets" id="ruleOutletGrid" aria-label="Daftar outlet yang tidak dapat dikirim"></div>
+            <div class="action-row"><button id="ruleSave" class="primary" type="button">Simpan Aturan Supplier</button><button id="ruleDelete" class="danger" type="button">Hapus Aturan Supplier Ini</button></div>
+            <p class="hint" style="margin:9px 0 0">Simpan aturan per supplier. Jika supplier pilihan tidak dapat mengirim ke suatu outlet saat aturan ON, sistem mencari supplier alternatif yang diizinkan; jika tidak tersedia maka Qty masuk Pending.</p>
+          </div>
+          <div style="margin-top:14px;font-weight:800;color:#29465e;font-size:12px">Daftar Aturan Tersimpan <span id="ruleSavedCount" class="rule-status">0 supplier</span></div>
+            <div id="ruleSavedList" class="rule-list"><div class="zero">Belum ada aturan supplier.</div></div>
+          </details>
+          <hr class="divider" />
+          <details class="master-details" id="masterNoteExceptionPanel"><summary>Master Pengecualian Catatan Default per Outlet <span id="noteExceptionCount" class="rule-status">0 outlet</span></summary>
+            <p class="hint">Catatan khusus akan mengesampingkan catatan otomatis supplier untuk outlet yang dipilih, pada <b>semua SKU dan supplier</b>. Jika pengecualian dihapus, catatan kembali mengikuti supplier yang benar-benar mendapat alokasi. Pilihan <b>Drop DC Buahbatu</b> tersedia di sini.</p>
+            <div class="form-grid">
+              <div class="field c6"><label for="noteExceptionOutlet">Outlet</label><select id="noteExceptionOutlet"></select></div>
+              <div class="field c6"><label for="noteExceptionValue">Catatan Default Khusus</label><select id="noteExceptionValue"></select></div>
+            </div>
+            <div class="action-row"><button id="saveNoteException" class="primary" type="button">Simpan Pengecualian</button></div>
+            <div class="note-exception-list" aria-label="Daftar pengecualian catatan per outlet">
+              <div class="note-exception-head"><span>Outlet</span><span>Catatan Default</span><span>Aksi</span></div>
+              <div id="noteExceptionList"><div class="zero">Belum ada pengecualian outlet.</div></div>
+            </div>
+          </details>
+          <hr class="divider" />
+          <details class="master-details" id="masterOutletPanel"><summary>Master Outlet & Penetapan Rute (29 outlet)</summary>
+            <p class="hint">Outlet Bandung dan sekitarnya masuk Rute Bandung; outlet Jabodetabek masuk Rute Jakarta. Jika perlu, Anda dapat mengubah pilihan rute setiap outlet di sini.</p>
+            <div id="masterRouteGrid" class="route-master"></div>
+          </details>
+          <div class="action-row"><button id="backupBtn" class="outline" type="button">Unduh Backup JSON</button><button id="restoreBtn" class="outline" type="button">Muat Backup JSON</button><button id="clearWorkingBtn" class="danger" type="button">Bersihkan Data Input</button><input id="restoreInput" style="display:none" type="file" accept=".json,application/json" /></div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="card preview-card" id="outputSection">
+    <div class="preview-head no-print">
+      <div><h2>Hasil Tabel PO Pengiriman</h2><p>Maksimal 4 tabel per halaman • 1 supplier per halaman • Urutan: Dada, Utuh, Fillet; Bandung lalu Jakarta.</p></div>
+      <div class="preview-actions"><button class="primary" id="printBtn" type="button">Cetak / Simpan PDF</button><button class="secondary" id="copyBtn" type="button">Salin Tabel</button><button class="outline" id="exportHtmlBtn" type="button">Unduh Hasil HTML</button></div>
+    </div>
+    <div id="resultArea"><div class="empty-output"><div><b>Hasil belum dibuat</b>Masukkan stok dan qty kebutuhan, lalu klik “Hitung Alokasi & Tampilkan Tabel”.<br/>Atau klik “Muat Contoh dari Gambar”.</div></div></div>
+  </div>
+</main>
+<footer class="no-print">GENERATOR PO BETA 0.1 • V6 • Daftar Stok Supplier &amp; Input Cepat Collapse • Ringkasan Qty &amp; Rupiah Supplier–SKU • Input kebutuhan PCS → Pack (÷10) sebelum pembulatan supplier, Catatan Default Supplier & Pengecualian Outlet, Daftar Kebutuhan Collapse per SKU, Ringkasan per SKU, Paste Qty, Aturan Supplier & Warna Catatan • Aplikasi offline • Data disimpan di browser • Qty 0 tidak tampil pada tabel PO.</footer>
+<dialog id="clearWorkingDialog" class="reset-dialog" aria-labelledby="clearWorkingTitle" aria-describedby="clearWorkingDesc">
+  <div class="reset-dialog-body">
+    <h3 id="clearWorkingTitle">Bersihkan Data Input?</h3>
+    <p id="clearWorkingDesc">Seluruh <b>stok supplier, daftar kebutuhan PO, isian Qty Input Cepat, dan hasil alokasi</b> akan dikosongkan. Tanggal request/kirim kembali ke hari ini.</p>
+    <div class="reset-dialog-note"><b>Informasi Master tetap aman:</b> Master Harga, rute outlet, pembatasan supplier (termasuk ON/OFF), dan pengecualian catatan tidak dihapus. File JSON yang sudah diunduh juga tidak terpengaruh.</div>
+    <div class="reset-dialog-actions"><button id="clearWorkingCancel" class="outline" type="button">Batal</button><button id="clearWorkingConfirm" class="danger" type="button">Ya, Bersihkan Data</button></div>
+  </div>
+</dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  'use strict';
+  const SUPPLIERS=['Yamiku','Japfa','TMS','BPA','BSD','SREEYA','BIF','MBU'];
+  const SKUS=[
+    {id:'adpa',name:'Ayam Dada Paha Atas (Pack)',uom:'Pack'},
+    {id:'utuh',name:'Ayam Utuh (Ekor)',uom:'Ekor'},
+    {id:'fillet',name:'Ayam Fillet (Pack)',uom:'Pack'}
+  ];
+  // Tulisan Noted pada header PO ditentukan oleh pasangan supplier dan SKU.
+  // Jika pasangan tidak memiliki kode, tampilkan persis "Noted".
+  const HEADER_NOTED_BY_SUPPLIER={
+    Yamiku:{adpa:'Parting',utuh:'AU08'},
+    Japfa:{adpa:'CU9',utuh:'CU2'},
+    BPA:{adpa:'ATPS',utuh:'BKK',fillet:'BB Katsu'},
+    TMS:{adpa:'ATPS'}
+  };
+  function headerNoted(supplier,skuId){
+    const code=HEADER_NOTED_BY_SUPPLIER[supplier]?.[skuId];
+    return code?'Noted : '+code:'Noted';
+  }
+  const OUTLETS=['Cisitu','Unisba','Widyatama','Sekeloa','Unpar','Unla','Antapani','Jatinangor','Metro Margahayu','Sukapura','UIN Bandung','Ujung Berung','Cihanjuang','Gerlong','Maranatha','Melong','Taman Kopo Indah','Unjani','Kelapa Dua','Dramaga','Kukusan UI','Unpam','UIN Jakarta','Binus','Trisakti','Mercubuana','Uhamka','Tebet','IKPN Bintaro'];
+  const NOTES=['Request 00.00-06.00','No Lunch Time (11.00 - 13.00 WIB)','Drop DC Buahbatu'];
+  const SUPPLIER_EARLY_NOTE=new Set(['Yamiku','BSD']);
+  function supplierDefaultNote(supplier){return SUPPLIER_EARLY_NOTE.has(supplier)?NOTES[0]:NOTES[1]}
+  const BATCHES=['Rute Bandung','Rute Jakarta'];
+  const BPA_WAREHOUSES=['Bandung','Jakarta'];
+  function warehouseForRoute(route){return route==='Rute Jakarta'?'Jakarta':'Bandung'}
+  function stockInventoryKey(supplier,skuId,warehouse){
+    return supplier==='BPA'?`${supplier}|${skuId}|${BPA_WAREHOUSES.includes(warehouse)?warehouse:'BELUM_DITENTUKAN'}`:`${supplier}|${skuId}`;
+  }
+  function demandInventoryKey(supplier,d){return stockInventoryKey(supplier,d.sku,supplier==='BPA'?warehouseForRoute(routeOf(d.outlet)):null)}
+
+  const INPUT_QTY_MODE='pcs_for_adpa_fillet_v1';
+  function inputUom(skuId){return (skuId==='adpa'||skuId==='fillet')?'PCS':'Ekor'}
+  function qtyToPoUom(qty,skuId){return (skuId==='adpa'||skuId==='fillet')?Number(qty)/10:Number(qty)}
+  // Stok selalu memakai Pack/Ekor; qty kebutuhan yang disimpan memakai PCS/Ekor.
+  const SKU_COLORS={adpa:'#ffff00',utuh:'#fbbc04',fillet:'#00ffff'};
+  // Pembulatan PO per pasangan supplier/SKU. Jika tidak tercantum, Qty tidak dibulatkan.
+  const QTY_MULTIPLES={
+    Yamiku:{adpa:25,utuh:25},
+    Japfa:{adpa:20,utuh:25},
+    TMS:{adpa:20,utuh:25},
+    BPA:{adpa:20,utuh:25,fillet:20},
+    BSD:{adpa:20,utuh:25},
+    SREEYA:{adpa:20,utuh:25},
+    BIF:{adpa:20,utuh:25},
+    MBU:{adpa:20,utuh:25}
+  };
+  function qtyMultiple(supplier,sku){return QTY_MULTIPLES[supplier]?.[sku]||1}
+  function roundedQty(qty,supplier,sku){const m=qtyMultiple(supplier,sku);return Math.round(qty/m)*m}
+
+  const DEFAULT_PRICES={'Yamiku|utuh':29920};
+  const BANDUNG_OUTLETS=OUTLETS.slice(0,18);
+  const DEFAULT_ROUTES=Object.fromEntries(OUTLETS.map(o=>[o,BANDUNG_OUTLETS.includes(o)?'Rute Bandung':'Rute Jakarta']));
+  const STORE_KEY='crisbar_po_table_app_v3';
+  const OLD_STORE_KEY='crisbar_po_table_app_v2';
+  const $=id=>document.getElementById(id);
+  let data={stocks:[],demands:[],allowFallback:false,prices:{...DEFAULT_PRICES},routes:{...DEFAULT_ROUTES},supplierRestrictionsEnabled:false,supplierRestrictions:{},noteExceptions:{},inputQtyMode:INPUT_QTY_MODE};
+  let ruleDraft=[];
+  let lastResults=null;
+  let supplierFinanceFilter='all';
+  let toastTimer;
+  function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2900)}
+  function options(select,rows,includeAuto=false){select.innerHTML='';if(includeAuto){const op=document.createElement('option');op.value='auto';op.textContent='Otomatis (stok tersedia)';select.append(op)}rows.forEach(r=>{const op=document.createElement('option');op.value=typeof r==='string'?r:r.id;op.textContent=typeof r==='string'?r:r.name;select.append(op)})}
+  function initSelectors(){
+    ['stockSupplier','masterSupplier','ruleSupplier'].forEach(id=>options($(id),SUPPLIERS));
+    options($('stockSku'),SKUS);options($('quickSku'),SKUS.map(k=>({...k,name:k.id==='utuh'?'Ayam Utuh (Ekor)':'Ayam '+(k.id==='adpa'?'Dada Paha Atas':'Fillet')+' (input PCS → hasil Pack)'})));
+    options($('quickSupplier'),SUPPLIERS,true);
+    options($('noteExceptionOutlet'),OUTLETS);
+    options($('noteExceptionValue'),NOTES);
+    options($('quickBatch'),['All Rute',...BATCHES]);
+    const today=new Date();const todayStr=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+    ['quickRequest','quickShip'].forEach(id=>$(id).value=todayStr);
+    const grid=$('quickGrid');
+    OUTLETS.forEach((name,i)=>{const wrap=document.createElement('div');wrap.className='quick-item';const order=document.createElement('span');order.className='row-num';order.textContent=String(i+1).padStart(2,'0');const lbl=document.createElement('label');lbl.htmlFor='q'+i;lbl.textContent=name;const qty=document.createElement('input');qty.type='number';qty.id='q'+i;qty.min='0';qty.step='1';qty.placeholder='—';qty.dataset.outlet=name;qty.title='Tempel satu kolom Qty kebutuhan ke sini (PCS untuk Dada/Fillet; Ekor untuk Utuh)';wrap.append(order,lbl,qty);grid.append(wrap)})
+  }
+  function esc(v){return String(v===undefined||v===null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function num(v){return Number(v).toLocaleString('id-ID')}
+  function validQty(v){let n=Number(v);return String(v).trim()!==''&&Number.isSafeInteger(n)&&n>0&&n<=100000000}
+  function validDemandQty(v){let n=Number(v);return String(v).trim()!==''&&Number.isSafeInteger(n)&&n>=0&&n<=100000000}
+  function validDate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(new Date(s+'T12:00:00').getTime())}
+  function price(supplier,sku){return data.prices?.[supplier+'|'+sku]??null}
+  function routeOf(outlet){return data.routes?.[outlet]||DEFAULT_ROUTES[outlet]||BATCHES[0]}
+  // Catatan ditentukan SETELAH alokasi, dari supplier yang benar-benar mendapat qty.
+  // Pengecualian outlet menang atas aturan supplier; data note lama diabaikan.
+  function effectiveNote(d){return data.noteExceptions?.[d.outlet]||supplierDefaultNote(d.supplier)}
+  function demandNoteLabel(d){return data.noteExceptions?.[d.outlet]||'Catatan otomatis sesuai supplier hasil alokasi'}
+  function currency(n){return n===null?'':('Rp'+Number(n).toLocaleString('id-ID'))}
+  function dateLong(d){if(!validDate(d))return '-';return new Date(d+'T12:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).replace(',','')}
+  function dateRequest(d){if(!validDate(d))return '-';const dte=new Date(d+'T12:00:00');const parts=dte.toLocaleDateString('id-ID',{weekday:'long',month:'long',year:'numeric'}).replace(',','');return parts.replace(/^(\S+)\s+/, '$1, ' ).replace(/, (\d{1,2})/,(_,day)=>', '+String(day).padStart(2,'0'))}
+  // Date request final: Kamis, 05 November 2026.
+  function dateRequestFmt(d){if(!validDate(d))return '-';const date=new Date(d+'T12:00:00');const week=date.toLocaleDateString('id-ID',{weekday:'long'});const month=date.toLocaleDateString('id-ID',{month:'long'});return `${week}, ${String(date.getDate()).padStart(2,'0')} ${month} ${date.getFullYear()}`}
+  function sku(id){return SKUS.find(x=>x.id===id)||SKUS[0]}
+  function keep(){
+    try { const state=JSON.stringify(data);
+      if(window.AndroidBridge && typeof AndroidBridge.saveState==='function') AndroidBridge.saveState(state);
+      else localStorage.setItem(STORE_KEY,state);
+    } catch(e) { console.warn('Gagal menyimpan data PO',e); }
+  }
+  function restoreLocal(){
+    try {
+      const raw=(window.AndroidBridge && typeof AndroidBridge.getState==='function')
+        ? AndroidBridge.getState() : (localStorage.getItem(STORE_KEY)||localStorage.getItem(OLD_STORE_KEY));
+      if(raw){const saved=JSON.parse(raw);if(saved)loadState(saved,false)}
+    }catch(e){console.warn('Data lokal tidak terbaca',e)}
+  }
+  function loadState(d,doSave){
+    if(!d||!Array.isArray(d.stocks)||!Array.isArray(d.demands))throw new Error('Format cadangan tidak sesuai.');
+    data.prices={...DEFAULT_PRICES};
+    if(d.prices&&typeof d.prices==='object')for(const [key,value] of Object.entries(d.prices)){
+      const [sp,sk]=key.split('|');if(SUPPLIERS.includes(sp)&&SKUS.some(k=>k.id===sk)&&(value===null||(Number.isSafeInteger(Number(value))&&Number(value)>=0&&Number(value)<=1000000000)))data.prices[key]=value===null?null:Number(value);
+    }
+    data.routes={...DEFAULT_ROUTES};
+    if(d.routes&&typeof d.routes==='object')for(const o of OUTLETS)if(BATCHES.includes(d.routes[o]))data.routes[o]=d.routes[o];
+    // Backward compatibility: old V6 backup has no restrictions, so default remains OFF.
+    data.supplierRestrictionsEnabled=d.supplierRestrictionsEnabled===true;
+    data.supplierRestrictions={};
+    if(d.supplierRestrictions&&typeof d.supplierRestrictions==='object'&&!Array.isArray(d.supplierRestrictions)){
+      for(const supplier of SUPPLIERS){
+        const entries=d.supplierRestrictions[supplier];
+        if(Array.isArray(entries)){
+          const valid=[...new Set(entries.filter(o=>typeof o==='string'&&OUTLETS.includes(o)))];
+          if(valid.length)data.supplierRestrictions[supplier]=valid;
+        }
+      }
+    }
+    // File cadangan V6 lama tanpa noteExceptions tetap dapat dimuat.
+    data.noteExceptions={};
+    if(d.noteExceptions&&typeof d.noteExceptions==='object'&&!Array.isArray(d.noteExceptions)){
+      for(const outlet of OUTLETS)if(NOTES.includes(d.noteExceptions[outlet]))data.noteExceptions[outlet]=d.noteExceptions[outlet];
+    }
+    data.stocks=d.stocks.filter(s=>SUPPLIERS.includes(s.supplier)&&SKUS.some(k=>k.id===s.sku)&&validQty(s.qty)).map(s=>({
+      id:String(s.id||uid()),supplier:s.supplier,sku:s.sku,qty:Math.round(Number(s.qty)),
+      // Stok BPA lama tanpa informasi gudang jangan otomatis diarahkan ke Jakarta/Bandung.
+      // Stok tersebut dibiarkan 'belum ditentukan' dan harus ditetapkan pengguna.
+      warehouse:s.supplier==='BPA'?(BPA_WAREHOUSES.includes(s.warehouse)?s.warehouse:''):null
+    }));
+    // Backup V6 lama masih dapat dimuat; catatan per kebutuhan yang lama tidak dipakai
+    // karena aturan baru bergantung pada supplier hasil alokasi.
+    const legacyPackDemand=d.inputQtyMode!==INPUT_QTY_MODE;
+    data.demands=d.demands.filter(n=>OUTLETS.includes(n.outlet)&&SKUS.some(k=>k.id===n.sku)&&validDemandQty(n.qty)&&validDate(n.request)&&validDate(n.ship)&&((n.preferred==='auto')||SUPPLIERS.includes(n.preferred))).map(n=>({
+      id:String(n.id||uid()),outlet:n.outlet,sku:n.sku,preferred:n.preferred,
+      // Pada backup lama, Dada/Fillet disimpan sebagai Pack; migrasi ke PCS sekali saja.
+      qty:Math.round(Number(n.qty))*(legacyPackDemand&&n.sku!=='utuh'?10:1),
+      request:n.request,ship:n.ship,batch:routeOf(n.outlet)
+    }));
+    data.inputQtyMode=INPUT_QTY_MODE;
+    data.allowFallback=!!d.allowFallback;$('allowFallback').checked=data.allowFallback;
+    if(doSave)keep();renderPriceMaster();renderRouteMaster();renderRuleMaster();renderNoteExceptions();updateRouteUI();updateLists();calculate(false);
+  }
+  let nextId=0;
+  function uid(){return 'x'+Date.now().toString(36)+(++nextId).toString(36)}
+  function updateLists(){
+    $('supplierCount').textContent=new Set(data.stocks.map(s=>s.supplier)).size;
+    $('stockCount').textContent=new Set(data.stocks.map(s=>stockInventoryKey(s.supplier,s.sku,s.warehouse))).size;
+    $('stockListMeta').textContent=data.stocks.length+' data stok tersimpan';
+    $('demandCount').textContent=data.demands.length;
+    $('needBadge').textContent=data.demands.length+' item';
+    $('stockList').innerHTML=data.stocks.length?data.stocks.map(s=>{
+      const isBpa=s.supplier==='BPA';
+      const unset=isBpa&&!BPA_WAREHOUSES.includes(s.warehouse);
+      const warehouseLabel=isBpa?(unset?'Gudang belum ditentukan':`Gudang ${s.warehouse} · Rute ${s.warehouse}`):'Semua Rute';
+      const warehouseSelect=isBpa?`<select class="stock-warehouse-select" data-stock-warehouse="${esc(s.id)}" aria-label="Gudang stok BPA ${esc(sku(s.sku).name)}"><option value=""${unset?' selected':''}>-- Pilih Gudang BPA --</option>${BPA_WAREHOUSES.map(w=>`<option value="${w}"${s.warehouse===w?' selected':''}>Gudang ${w}</option>`).join('')}</select>`:'';
+      return `<div class="listrow stock-listrow"><div class="detail"><strong>${esc(s.supplier)}</strong><span class="sub">${esc(sku(s.sku).name)}</span><span class="sub${unset?' stock-warning':''}">${esc(warehouseLabel)}${unset?' (belum dipakai alokasi)':''}</span></div>${warehouseSelect}<input class="qty-inline" type="number" min="1" step="1" data-sqty="${esc(s.id)}" value="${s.qty}" aria-label="Qty stok ${esc(s.supplier)} ${esc(warehouseLabel)}" /><button class="danger tiny" data-delstock="${esc(s.id)}">Hapus</button></div>`;
+    }).join(''):'<div class="zero">Belum ada stok supplier.</div>';
+    $('bpaLegacyWarning').hidden=!data.stocks.some(s=>s.supplier==='BPA'&&!BPA_WAREHOUSES.includes(s.warehouse));
+    // Pertahankan grup yang sedang dibuka saat Qty diubah, disimpan, atau baris dihapus.
+    const openedSkuGroups=new Set([...$('demandList').querySelectorAll('.demand-sku-group[open]')].map(el=>el.dataset.sku));
+    $('demandList').innerHTML=SKUS.map(k=>{
+      const needs=data.demands.filter(n=>n.sku===k.id);
+      const qtyTotal=needs.reduce((a,n)=>a+n.qty,0);
+      const qtyZero=needs.filter(n=>n.qty===0).length;const totalPo=qtyToPoUom(qtyTotal,k.id);
+      const rows=needs.length?needs.map(n=>`<div class="listrow"><div class="detail"><strong>${esc(n.outlet)}</strong><span class="sub">${esc(n.preferred==='auto'?'Supplier otomatis':n.preferred)} · Kirim ${esc(n.ship)} · ${esc(routeOf(n.outlet))}</span><span class="sub">Qty input: ${num(n.qty)} ${esc(inputUom(n.sku))}${n.sku==='utuh'?'':` = ${num(qtyToPoUom(n.qty,n.sku))} Pack`} · ${esc(demandNoteLabel(n))}${data.noteExceptions[n.outlet]?' · Pengecualian Master':''}${n.qty===0?' · Qty 0: tidak masuk tabel PO':''}</span></div><input class="qty-inline" type="number" min="0" step="1" data-nqty="${esc(n.id)}" value="${n.qty}" aria-label="Qty kebutuhan ${esc(n.outlet)} untuk ${esc(k.name)} dalam ${esc(inputUom(k.id))}" /><button class="danger tiny" data-delneed="${esc(n.id)}">Hapus</button></div>`).join(''):'<div class="zero">Belum ada kebutuhan SKU ini.</div>';
+      return `<details class="demand-sku-group" data-sku="${k.id}" style="--sku-color:${SKU_COLORS[k.id]}" ${openedSkuGroups.has(k.id)?'open':''}><summary><span class="demand-sku-title"><span class="demand-sku-marker" aria-hidden="true"></span><span class="demand-sku-name">${esc(k.name)}</span></span><span class="demand-sku-meta">${needs.length} item · ${num(qtyTotal)} ${esc(inputUom(k.id))}${k.id==='utuh'?'':` = ${num(totalPo)} Pack`}${qtyZero?' · '+qtyZero+' qty 0':''}</span></summary><div class="demand-sku-rows">${rows}</div></details>`;
+    }).join('');
+  }
+  function addStock(e){e.preventDefault();const s=$('stockSupplier').value,k=$('stockSku').value,q=$('stockQty').value;
+    if(!validQty(q)){toast('Qty stok harus bilangan bulat positif.');return}
+    const warehouse=s==='BPA'?$('stockWarehouse').value:null;
+    if(s==='BPA'&&!BPA_WAREHOUSES.includes(warehouse)){toast('Pilih Gudang Bandung atau Gudang Jakarta untuk stok BPA.');return}
+    const exist=data.stocks.find(x=>x.supplier===s&&x.sku===k&&(s!=='BPA'||x.warehouse===warehouse));
+    if(exist)exist.qty+=Number(q);else data.stocks.push({id:uid(),supplier:s,sku:k,qty:Number(q),warehouse});
+    $('stockQty').value='';keep();updateLists();calculate(false);$('stockQty').focus();toast('Stok '+s+(s==='BPA'?' / Gudang '+warehouse:'')+' ditambahkan.');
+  }
+  function refreshStockWarehouseField(){
+    const isBpa=$('stockSupplier').value==='BPA';
+    const field=$('stockWarehouseField');field.hidden=!isBpa;
+    const select=$('stockWarehouse');select.disabled=!isBpa;select.required=isBpa;
+  }
+  function visibleQuickInputs(){return [...$('quickGrid').querySelectorAll('input[data-outlet]')].filter(x=>x.closest('.quick-item').style.display!=='none')}
+  function updatePasteStatus(){
+    const selectedSku=$('quickSku').value;const unit=inputUom(selectedSku);
+    const shown=visibleQuickInputs();const filled=shown.filter(x=>x.value.trim()!==''&&validDemandQty(x.value));const zeros=filled.filter(x=>Number(x.value)===0);
+    const total=filled.reduce((a,x)=>a+Number(x.value),0);
+    $('pasteStatus').innerHTML=`<b>${shown.length} outlet</b> ditampilkan · <b>${filled.length}</b> qty terisi · <b>${zeros.length}</b> qty 0 · Total input <b>${num(total)} ${unit}</b>${selectedSku==='utuh'?'':` = <b>${num(qtyToPoUom(total,selectedSku))} Pack</b> sebelum pembulatan`}`;
+    // Ringkasan di judul panel selalu diperbarui saat qty, SKU, atau rute berubah.
+    $('quickOutletMeta').textContent=`${shown.length} outlet · ${filled.length} qty terisi`;
+    $('quickGrid').querySelectorAll('input[data-outlet]').forEach(x=>x.classList.toggle('is-zero',x.value.trim()!==''&&Number(x.value)===0));
+  }
+  function refreshInputUnits(){
+    const k=$('quickSku').value,unit=inputUom(k);
+    $('quickQtyHeading').textContent='Qty kebutuhan ('+unit+')';
+    $('pasteQtyLabel').textContent='Tempel kolom Qty ('+unit+') dari Google Sheets / Excel';
+    $('quickConversionHint').innerHTML=k==='utuh'?'Ayam Utuh: input <b>Ekor</b> tanpa konversi. PO dan stok juga dalam Ekor.':'Dada Paha Atas / Fillet: input <b>PCS</b> → <b>÷10</b> menjadi Pack → dibulatkan sesuai aturan supplier. Stok supplier tetap dalam Pack.';
+    updatePasteStatus();
+  }
+  function refreshStockUnit(){const unit=sku($('stockSku').value).uom;$('stockQtyLabel').textContent='Qty stok ('+unit+')'}
+  // Excel and Sheets copy a single column as newline-delimited cell values.
+  // Also accept a two-column selection (Outlet<TAB>Qty) and match the outlet names.
+  function parseQtyPaste(raw,inputs,fromIndex=0){
+    const rows=raw.replace(/\r/g,'').split('\n');
+    while(rows.length&&rows[rows.length-1].trim()==='')rows.pop();
+    if(!rows.length)return {error:'Belum ada angka Qty yang ditempel.'};
+    const twoCols=rows.some(row=>row.includes('\t'));
+    const results=[];
+    const parseNumber=(value,i)=>{
+      const t=String(value).trim();
+      if(!/^(?:\d+|\d{1,3}(?:\.\d{3})+)$/.test(t))return {error:`Baris ${i+1} bukan angka Qty: ${t||'(kosong)'}. Salin hanya sel Qty.`};
+      const n=Number(t.replace(/\./g,''));
+      if(!validDemandQty(n))return {error:`Qty pada baris ${i+1} harus bilangan bulat 0–100.000.000.`};
+      return {value:n};
+    };
+    if(twoCols){
+      const byName=new Map(inputs.map(el=>[el.dataset.outlet.toLocaleLowerCase('id-ID').trim(),el]));
+      const used=new Set();
+      for(let i=0;i<rows.length;i++){
+        const cells=rows[i].split('\t').map(x=>x.trim());
+        if(cells.length<2||cells[0]==='')return {error:`Baris ${i+1} harus berisi nama outlet dan Qty.`};
+        const key=cells[0].toLocaleLowerCase('id-ID');
+        const input=byName.get(key);
+        if(!input)return {error:`Outlet baris ${i+1} (${cells[0]}) tidak ada pada rute terpilih. Salin hanya kolom Qty, atau cocokkan nama outlet.`};
+        if(used.has(key))return {error:`Outlet ${cells[0]} muncul lebih dari sekali.`};
+        const val=parseNumber(cells[1],i);if(val.error)return val;
+        used.add(key);results.push({input,qty:val.value});
+      }
+    }else{
+      if(rows.length>inputs.length-fromIndex)return {error:`Ada ${rows.length} angka, sedangkan slot outlet tersisa hanya ${inputs.length-fromIndex}. Pilih All Rute untuk 29 outlet atau tempel sesuai jumlah outlet rute ini.`};
+      for(let i=0;i<rows.length;i++){
+        const val=parseNumber(rows[i],i);if(val.error)return val;
+        results.push({input:inputs[fromIndex+i],qty:val.value});
+      }
+    }
+    return {results};
+  }
+  function applyPastedQty(raw,fromInput=null){
+    const inputs=visibleQuickInputs();
+    if(!inputs.length){toast('Tidak ada outlet pada rute ini.');return false}
+    const start=fromInput?inputs.indexOf(fromInput):0;
+    if(start<0){toast('Outlet tidak aktif di rute terpilih.');return false}
+    const parsed=parseQtyPaste(raw,inputs,start);
+    if(parsed.error){toast(parsed.error);$('pasteStatus').textContent=parsed.error;return false}
+    // Paste panel replaces all visible quick values; paste inside one input starts from that row.
+    if(!fromInput)inputs.forEach(el=>el.value='');
+    parsed.results.forEach(({input,qty})=>input.value=String(qty));
+    $('qtyPaste').value='';
+    updatePasteStatus();
+    const z=parsed.results.filter(x=>x.qty===0).length;
+    const message=`${parsed.results.length} Qty ditempel ke outlet (${z} bernilai 0). Klik Simpan Semua Qty Terisi.`;
+    toast(message);
+    return true;
+  }
+  function addQuick(){
+    const items=visibleQuickInputs().filter(x=>x.value.trim()!=='');
+    if(!items.length){toast('Tempel atau isi qty pada satu atau lebih outlet, termasuk 0.');return}
+    for(const el of items){if(!validDemandQty(el.value)){toast('Qty '+el.dataset.outlet+' harus bilangan bulat 0 atau lebih.');el.focus();return}}
+    const request=$('quickRequest').value,ship=$('quickShip').value;
+    if(!validDate(request)||!validDate(ship)||ship<request){toast('Periksa tanggal request dan tanggal kirim.');return}
+    const newItems=items.map(el=>({id:uid(),outlet:el.dataset.outlet,sku:$('quickSku').value,preferred:$('quickSupplier').value,qty:Number(el.value),request,ship,batch:routeOf(el.dataset.outlet)}));
+    // Prevent accidental duplicates when users re-paste and save a corrected quantity.
+    let replaced=0;
+    for(const item of newItems){
+      // Catatan bukan lagi bagian kunci kebutuhan (supaya update Qty tidak menggandakan data).
+      const matches=data.demands.filter(n=>n.outlet===item.outlet&&n.sku===item.sku&&n.preferred===item.preferred&&n.request===item.request&&n.ship===item.ship);
+      if(matches.length){matches[0].qty=item.qty;matches[0].batch=item.batch;replaced++;
+        if(matches.length>1){const redundant=new Set(matches.slice(1).map(n=>n.id));data.demands=data.demands.filter(n=>!redundant.has(n.id));}
+      }else data.demands.push(item);
+    }
+    const nZero=newItems.filter(x=>x.qty===0).length;
+    clearQuick();keep();updateLists();calculate(false);
+    toast(`${newItems.length} kebutuhan disimpan (${nZero} qty 0 tidak masuk tabel PO; ${replaced} diperbarui).`);
+  }
+  function clearQuick(){[...$('quickGrid').querySelectorAll('input')].forEach(x=>x.value='');$('qtyPaste').value='';updatePasteStatus()}
+  function isSupplierRestricted(supplier,outlet){
+    return data.supplierRestrictionsEnabled===true&&(data.supplierRestrictions[supplier]||[]).includes(outlet);
+  }
+  function chooseSuppliers(d,inventory){
+    // BPA hanya boleh menggunakan stok dari gudang yang sama dengan rute outlet.
+    const available=SUPPLIERS.filter(s=>(inventory[demandInventoryKey(s,d)]||0)>0&&!isSupplierRestricted(s,d.outlet));
+    const sorted=available.slice().sort((a,b)=>{
+      const pa=price(a,d.sku),pb=price(b,d.sku);
+      if(pa===null&&pb!==null)return 1;
+      if(pb===null&&pa!==null)return -1;
+      if(pa!==null&&pb!==null&&pa!==pb)return pa-pb;
+      return SUPPLIERS.indexOf(a)-SUPPLIERS.indexOf(b);
+    });
+    if(d.preferred==='auto')return sorted;
+    // A forbidden preferred supplier is never allocated, even if fallback is unchecked.
+    // In this specific case automatically search permitted alternative suppliers.
+    if(isSupplierRestricted(d.preferred,d.outlet))return sorted;
+    if(data.allowFallback)return [d.preferred,...sorted.filter(s=>s!==d.preferred)];
+    return [d.preferred];
+  }
+  function calculate(scroll=true){
+    const inv={};for(const s of data.stocks){
+      const key=stockInventoryKey(s.supplier,s.sku,s.warehouse);
+      inv[key]=(inv[key]||0)+s.qty;
+    }
+    const all=[],pending=[];
+    const ds=data.demands.slice().sort((a,b)=>a.ship.localeCompare(b.ship)||a.request.localeCompare(b.request));
+    for(const d of ds){if(d.qty===0)continue;let left=qtyToPoUom(d.qty,d.sku);
+      for(const supplier of chooseSuppliers(d,inv)){
+        const key=demandInventoryKey(supplier,d);
+        const available=inv[key]||0;
+        if(available<=0)continue;
+        const multiple=qtyMultiple(supplier,d.sku);
+        // Bulatkan kebutuhan tersisa ke kelipatan terdekat; tepat setengah dibulatkan ke atas.
+        const target=roundedQty(left,supplier,d.sku);
+        if(target===0){
+          // Permintaan positif yang paling dekat dengan 0 memang tidak menghasilkan PO.
+          left=0;
+          break;
+        }
+        // Tidak boleh mengirim pecahan kelipatan, dan stok tidak boleh menjadi negatif.
+        const availableWhole=multiple===1?available:Math.floor(available/multiple)*multiple;
+        const taken=Math.min(target,availableWhole);
+        if(taken>0){
+          all.push({...d,supplier,allocated:taken});
+          inv[key]-=taken;
+          // Qty sesuai hasil pembulatan dianggap terpenuhi walaupun dibulatkan turun.
+          left=(taken===target)?0:Math.max(0,left-taken);
+        }
+        if(left===0)break;
+      }
+      if(left>0)pending.push({...d,missing:left});
+    }
+    const groups=new Map();
+    for(const d of all){
+      const currentRoute=routeOf(d.outlet);
+      const key=[d.ship,d.request,d.supplier,d.sku,currentRoute].join('|');
+      if(!groups.has(key))groups.set(key,{ship:d.ship,request:d.request,supplier:d.supplier,sku:d.sku,batch:currentRoute,items:[]});
+      const g=groups.get(key);const note=effectiveNote(d);
+      const row=g.items.find(x=>x.outlet===d.outlet&&x.note===note);
+      if(row)row.qty+=d.allocated;else g.items.push({outlet:d.outlet,note,qty:d.allocated});
+    }
+    // Urutkan outlet A–Z dalam setiap tabel PO; nomor urut menyesuaikan posisi akhir.
+    // Tidak mengubah input, alokasi qty, stok, SKU, rute, maupun catatan.
+    for(const group of groups.values()){
+      group.items.sort((a,b)=>a.outlet.localeCompare(b.outlet,'id',{sensitivity:'base'}));
+    }
+    const tableGroups=[...groups.values()].sort((a,b)=>a.ship.localeCompare(b.ship)||SUPPLIERS.indexOf(a.supplier)-SUPPLIERS.indexOf(b.supplier)||SKUS.findIndex(k=>k.id===a.sku)-SKUS.findIndex(k=>k.id===b.sku)||a.request.localeCompare(b.request)||BATCHES.indexOf(a.batch)-BATCHES.indexOf(b.batch));
+    lastResults={tableGroups,pending,stockLeft:inv};renderResult(lastResults);
+    if(scroll)$('outputSection').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function tableHtml(g){const k=sku(g.sku);const total=g.items.reduce((sum,i)=>sum+i.qty,0);const p=price(g.supplier,g.sku);
+    const skuColor=SKU_COLORS[g.sku]||'#fbbc04';
+    const colored=`style="background-color:${skuColor}"`;
+    const body=g.items.map((x,index)=>{
+      const highlight=x.note==='Request 00.00-06.00';
+      const noteClass=highlight?'note-cell early-request':'note-cell';
+      // Inline background menjaganya saat tabel ditempel ke Word/Sheets.
+      const noteStyle=highlight?` style="background-color:${skuColor}"`: '';
+      return `<tr><td class="no-cell">${index+1}</td><td>${esc(x.outlet)}</td><td>${num(x.qty)}</td><td class="${noteClass}"${noteStyle}>${x.note==='Tanpa catatan'?'':esc(x.note)}</td></tr>`;
+    }).join('')+Array.from({length:Math.max(0,8-g.items.length)},()=>'<tr class="blank-row"><td></td><td></td><td></td><td></td></tr>').join('');
+    return `<div class="table-wrap"><table class="po-table" data-sku="${esc(g.sku)}" style="--sku-color:${skuColor}"><colgroup><col class="no-col"/><col class="name-col"/><col class="qty-col"/><col class="notes-col"/></colgroup><thead><tr><th colspan="2" class="first">Kiriman ${esc(dateLong(g.ship))}</th><th class="supplier">${esc(g.supplier)}</th><th class="price" ${colored}>${esc(currency(p))}</th></tr><tr class="subhead"><th colspan="2" ${colored}>${esc(dateRequestFmt(g.request))}</th><th class="uom" ${colored}>${esc(k.uom)}</th><th ${colored}>${esc(headerNoted(g.supplier,g.sku))}</th></tr></thead><tbody>${body}<tr class="total"><td></td><td>Total</td><td class="total-qty">${num(total)}</td><td></td></tr></tbody></table><div class="table-mini-label no-print">${esc(g.batch)}${g.supplier==='BPA'?' · Gudang '+esc(warehouseForRoute(g.batch)):''} · ${esc(k.name)} · Qty: ${num(total)} ${esc(k.uom)}</div></div>`;
+  }
+  // Ringkasan memakai tiga besaran yang berbeda: input asli, kuantitas kiriman final,
+  // dan kekurangan stok/supplier. Efek pembulatan ditampilkan terpisah, bukan pending.
+  function skuSummaryHtml(res){
+    const summaries=SKUS.map(k=>({
+      ...k,
+      requested:data.demands.filter(d=>d.sku===k.id).reduce((n,d)=>n+qtyToPoUom(d.qty,d.sku),0),
+      allocated:res.tableGroups.filter(g=>g.sku===k.id).reduce((n,g)=>n+g.items.reduce((v,item)=>v+item.qty,0),0),
+      pending:res.pending.filter(d=>d.sku===k.id).reduce((n,d)=>n+d.missing,0)
+    }));
+    const totals=summaries.reduce((acc,s)=>({
+      requested:acc.requested+s.requested,
+      allocated:acc.allocated+s.allocated,
+      pending:acc.pending+s.pending
+    }),{requested:0,allocated:0,pending:0});
+    const rows=summaries.map(k=>`<tr><td><div class="sku-name-wrap"><i class="sku-swatch" style="--sku-accent:${SKU_COLORS[k.id]||'#ddd'}"></i><div class="sku-caption"><strong>${esc(k.name.replace(/ \((Pack|Ekor)\)$/,''))}</strong><small>${esc(k.uom)}</small></div></div></td><td>${num(k.requested)}</td><td>${num(k.allocated)}</td><td>${num(k.pending)}</td></tr>`).join('');
+    const rounding=summaries.filter(k=>Math.abs(k.allocated+k.pending-k.requested)>1e-8).map(k=>{
+      const difference=k.allocated+k.pending-k.requested;
+      const direction=difference>0?'kelebihan':'pengurangan';
+      return `${esc(k.name.replace(/ \((Pack|Ekor)\)$/,''))}: <b>${difference>0?'+':''}${num(difference)} ${esc(k.uom)}</b> (${direction} qty setelah pembulatan)`;
+    });
+    const roundingInfo=rounding.length?`<p class="summary-rounding"><b>Selisih pembulatan (bukan pending):</b> ${rounding.join(' · ')}. Rumus: Qty Dialokasi + Pending − Qty Diminta.</p>`:'';
+    return `<section class="po-summary no-print" aria-label="Ringkasan hasil alokasi PO per SKU"><div class="summary-top"><div><h3 class="summary-title">Ringkasan Hasil Alokasi PO</h3><p class="summary-subtitle">Rekap kebutuhan dan hasil alokasi seluruh outlet</p></div><div class="table-counter"><span>Jumlah Tabel PO</span><b>${num(res.tableGroups.length)}</b></div></div><div class="summary-label">Rincian Qty Berdasarkan SKU</div><div class="summary-scroll"><table class="sku-summary-table"><thead><tr><th>SKU</th><th>Diminta</th><th>Dialokasi</th><th>Pending</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td>Total Gabungan*</td><td>${num(totals.requested)}</td><td>${num(totals.allocated)}</td><td>${num(totals.pending)}</td></tr></tfoot></table></div><p class="summary-info">*Qty Diminta untuk Dada Paha Atas & Fillet sudah dikonversi dari input PCS menjadi Pack (÷10), sebelum pembulatan supplier. Ayam Utuh tetap Ekor. Total gabungan Pack + Ekor hanya referensi angka. Pending bukan selisih pembulatan.</p>${roundingInfo}</section>`;
+  }
+  // Rekap nilai PO dari tabel hasil final (bukan dari demand mentah):
+  // otomatis menggabungkan semua tanggal kirim/gudang/rute dalam satu pasangan supplier+SKU.
+  function supplierFinanceSummaryHtml(res){
+    const supplierMap=new Map();
+    for(const group of res.tableGroups){
+      if(!supplierMap.has(group.supplier))supplierMap.set(group.supplier,new Map());
+      const bySku=supplierMap.get(group.supplier);
+      const total=group.items.reduce((sum,item)=>sum+item.qty,0);
+      bySku.set(group.sku,(bySku.get(group.sku)||0)+total);
+    }
+    const names=SUPPLIERS.filter(name=>supplierMap.has(name));
+    if(supplierFinanceFilter!=='all'&&!supplierMap.has(supplierFinanceFilter))supplierFinanceFilter='all';
+    const visible=names.filter(name=>supplierFinanceFilter==='all'||name===supplierFinanceFilter);
+    const formatRupiah=n=>'Rp'+new Intl.NumberFormat('id-ID',{maximumFractionDigits:2}).format(n);
+    let knownGrandTotal=0,missingCount=0,knownRows=0;
+    const cards=visible.map(name=>{
+      const bySku=supplierMap.get(name);
+      let supplierTotal=0,supplierMissing=0,supplierKnownRows=0;
+      const rows=SKUS.filter(k=>(bySku.get(k.id)||0)>0).map(k=>{
+        const qty=bySku.get(k.id);
+        const unitPrice=price(name,k.id);
+        const unknown=unitPrice===null;
+        if(unknown){supplierMissing++;missingCount++;}
+        else {supplierTotal+=qty*unitPrice;supplierKnownRows++;knownRows++;}
+        return `<tr><td><div class="supplier-finance-sku" style="--sku-color:${SKU_COLORS[k.id]||'#ddd'}"><i aria-hidden="true"></i><span>${esc(k.name.replace(/ \((Pack|Ekor)\)$/,''))}<small>${esc(k.uom)}</small></span></div></td>`+
+          `<td>${num(qty)}</td><td>${unknown?'<span class="supplier-finance-missing">Belum diisi</span>':esc(formatRupiah(unitPrice))}</td>`+
+          `<td>${unknown?'<span class="supplier-finance-missing">Harga belum diisi</span>':'<strong>'+esc(formatRupiah(qty*unitPrice))+'</strong>'}</td></tr>`;
+      }).join('');
+      knownGrandTotal+=supplierTotal;
+      const subtotal=supplierKnownRows?formatRupiah(supplierTotal):'—';
+      const indicator=supplierMissing?' <span class="supplier-finance-missing">(parsial)</span>':'';
+      return `<div class="supplier-finance-card"><div class="supplier-finance-head"><strong>${esc(name)}</strong><span>Subtotal diketahui: ${esc(subtotal)}${indicator}</span></div>`+
+        `<div class="supplier-finance-scroll"><table class="supplier-finance-table"><thead><tr><th>SKU</th><th>Qty Alokasi</th><th>Harga / Satuan</th><th>Total Rupiah</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    }).join('');
+    const visibleTotal=knownRows?formatRupiah(knownGrandTotal):'—';
+    const options='<option value="all"'+(supplierFinanceFilter==='all'?' selected':'')+'>Semua Supplier</option>'+
+      names.map(name=>`<option value="${esc(name)}"${name===supplierFinanceFilter?' selected':''}>${esc(name)}</option>`).join('');
+    const warning=missingCount?`<div class="supplier-finance-note"><b>${num(missingCount)} kombinasi Supplier–SKU belum memiliki harga.</b> Nominal yang ditampilkan baru subtotal harga tersedia, bukan total PO final. Isi harga di Informasi Master → Update Harga SKU per Supplier agar seluruh nilainya dapat dihitung.</div>`:'';
+    const footNote='<p class="summary-info">Qty berdasarkan hasil alokasi setelah konversi PCS → Pack dan pembulatan supplier. Rute Bandung/Jakarta serta beberapa tanggal pengiriman digabung pada supplier dan SKU yang sama. Nilai = Qty Alokasi × Harga satuan Master Harga.</p>';
+    // Posisi panel tetap terjaga saat filter supplier atau hasil alokasi dihitung ulang.
+    // Pada tampilan pertama, panel default tertutup (minimize).
+    const alreadyOpen=document.getElementById('supplierFinance')?.open===true;
+    return `<details class="supplier-finance no-print" id="supplierFinance" aria-label="Rangkuman Qty dan Nilai PO per Supplier dan SKU"${alreadyOpen?' open':''}>`+
+      `<summary><span class="supplier-finance-summary-text"><span class="supplier-finance-title">Rangkuman Qty &amp; Nilai PO per Supplier dan SKU</span>`+
+      `<span class="supplier-finance-summary-hint"><span class="hint-closed">Klik untuk melihat rincian supplier dan nilai PO</span><span class="hint-open">Klik untuk menutup rangkuman</span></span></span>`+
+      `<span class="supplier-finance-summary-action"><span class="action-closed">Buka</span><span class="action-open">Tutup</span></span></summary>`+
+      `<div class="supplier-finance-body"><p class="supplier-finance-caption">Rekap biaya pembelian dari hasil alokasi final. Hanya tampil di dashboard aplikasi, tidak ikut cetak PDF atau ekspor tabel pengiriman.</p>`+
+      `<div class="supplier-finance-metrics"><div class="supplier-finance-metric"><span>Supplier Terlibat</span><strong>${num(visible.length)}</strong></div>`+
+      `<div class="supplier-finance-metric"><span>Total Nilai PO ${missingCount?'(harga tersedia)':'Terhitung'}</span><strong>${esc(visibleTotal)}</strong></div></div>`+
+      `<div class="supplier-finance-filter"><label for="supplierValueFilter">Filter Supplier</label><select id="supplierValueFilter" aria-label="Filter rangkuman nilai PO berdasarkan supplier">${options}</select></div>`+
+      (cards||'<div class="supplier-finance-empty">Belum ada supplier dengan Qty alokasi lebih dari 0.</div>')+
+      `<div class="supplier-finance-total"><span>Total Nilai PO ${missingCount?'Terhitung (parsial)':'Keseluruhan'}</span><strong>${esc(visibleTotal)}</strong></div>`+
+      warning+footNote+'</div></details>';
+  }
+  function renderResult(res){
+    const el=$('resultArea');
+    const summary=data.demands.length?skuSummaryHtml(res):'';
+    const supplierFinance=data.demands.length?supplierFinanceSummaryHtml(res):'';
+    if(!res.tableGroups.length){
+      const blank=res.pending.length?'Semua kebutuhan berstatus pending karena stok atau supplier tidak tersedia.':data.demands.some(d=>d.qty>0)?'Tidak ada Qty untuk ditampilkan: kebutuhan mungkin dibulatkan menjadi 0. Qty asli tetap tersimpan.':'Masukkan stok dan qty kebutuhan, lalu klik “Hitung Alokasi & Tampilkan Tabel”.';
+      el.innerHTML=summary+supplierFinance+`<div class="empty-output"><div><b>Belum ada tabel alokasi</b>${blank}</div></div>`+pendingHtml(res.pending);
+      return;
+    }
+    // Susun halaman supplier secara terpisah. Prioritas: supplier (urutan master),
+    // SKU Dada -> Utuh -> Fillet, rute Bandung -> Jakarta, lalu tanggal kirim/request.
+    // Setiap empat tabel membentuk satu halaman: indeks 0/1 di kolom kiri,
+    // indeks 2/3 di kolom kanan (bukan urutan baris grid).
+    const ordered=[...res.tableGroups].sort((a,b)=>
+      SUPPLIERS.indexOf(a.supplier)-SUPPLIERS.indexOf(b.supplier) ||
+      SKUS.findIndex(k=>k.id===a.sku)-SKUS.findIndex(k=>k.id===b.sku) ||
+      BATCHES.indexOf(a.batch)-BATCHES.indexOf(b.batch) ||
+      a.ship.localeCompare(b.ship) || a.request.localeCompare(b.request)
+    );
+    const supplierGroups=new Map();
+    for(const table of ordered){
+      if(!supplierGroups.has(table.supplier))supplierGroups.set(table.supplier,[]);
+      supplierGroups.get(table.supplier).push(table);
+    }
+    let layouts='';
+    for(const [supplier,tables] of supplierGroups){
+      const totalPages=Math.ceil(tables.length/4);
+      for(let n=0;n<totalPages;n++){
+        const pageTables=tables.slice(n*4,n*4+4);
+        const left=pageTables.slice(0,2);
+        const right=pageTables.slice(2,4);
+        // Sesuaikan kerapatan cetak dengan jumlah baris terpadat pada satu kolom.
+        // Dua tabel sampai 29 outlet tetap muat dalam tinggi A4 landscape.
+        const heightRows=col=>col.reduce((sum,g)=>sum+2+Math.max(8,g.items.length)+1,0);
+        const maxRows=Math.max(heightRows(left),heightRows(right));
+        const rowHeight=maxRows>55?10:maxRows>48?11:maxRows>41?13:15;
+        const fontSize=maxRows>55?7:maxRows>48?7.5:maxRows>41?8:8.5;
+        layouts+=`<section class="supplier-page" data-supplier="${esc(supplier)}" data-supplier-page="${n+1}" style="--po-row-height:${rowHeight}px;--po-font-size:${fontSize}px">`+
+          `<div class="supplier-page-title no-print"><span>Supplier: ${esc(supplier)}</span><span class="supplier-page-subtitle">Halaman ${n+1} dari ${totalPages} · ${pageTables.length} tabel</span></div>`+
+          '<div class="sheet-grid">'+
+            '<div class="ship-column">'+left.map(tableHtml).join('')+'</div>'+
+            '<div class="ship-column">'+right.map(tableHtml).join('')+'</div>'+
+          '</div></section>';
+      }
+    }
+    el.innerHTML=summary+supplierFinance+'<div id="tablesOnly">'+layouts+'</div>'+pendingHtml(res.pending);
+  }
+  function pendingHtml(items){if(!items.length)return '';return `<div class="pending"><h3>⚠ Kebutuhan belum teralokasi (Pending)</h3>${items.map(i=>`<p><b>${esc(i.outlet)}</b> · ${esc(sku(i.sku).name)} · Kirim ${esc(dateLong(i.ship))} · Kekurangan <b>${num(i.missing)} ${esc(sku(i.sku).uom)}</b></p>`).join('')}</div>`}
+  function loadDemo(){
+    if((data.stocks.length||data.demands.length)&&!confirm('Ganti semua data saat ini dengan contoh dari gambar?'))return;
+    data={...data,stocks:[{id:uid(),supplier:'Yamiku',sku:'utuh',qty:1175}],demands:[],allowFallback:false};
+    const f1=[['Dramaga',50],['IKPN Bintaro',100],['Kelapa Dua',50],['Kukusan UI',50],['Tebet',25],['Trisakti',50],['Uhamka',50]];
+    const f2=[['Cihanjuang',25],['Maranatha',25],['Melong',50],['Metro Margahayu',25],['Sukapura',25],['Unla',25]];
+    const f3=[['Binus',50],['IKPN Bintaro',100],['Kelapa Dua',50],['Kukusan UI',50],['Mercubuana',50],['Tebet',50],['Trisakti',25]];
+    const f4=[['Antapani',25],['Cisitu',25],['Gerlong',50],['Jatinangor',50],['Melong',25],['Metro Margahayu',25],['Sekeloa',25],['Sukapura',25]];
+    for(const [idx,items]of [f1,f2,f3,f4].entries())for(const [outlet,qty]of items)data.demands.push({id:uid(),outlet,qty,sku:'utuh',preferred:'Yamiku',request:idx<2?'2026-11-05':'2026-11-06',ship:idx<2?'2026-11-06':'2026-11-09',batch:routeOf(outlet)});
+    $('allowFallback').checked=false;keep();updateLists();calculate();toast('Contoh 4 tabel dari gambar dimuat.');
+  }
+  function download(name,type,content){
+    if(window.AndroidBridge && typeof AndroidBridge.saveFile==='function'){
+      AndroidBridge.saveFile(name,type,String(content));
+      return;
+    }
+    const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=name;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }
+  function outputDocument(){if(!lastResults?.tableGroups.length)return null;const content=$('tablesOnly').outerHTML+($('resultArea').querySelector('.pending')?.outerHTML||'');const style=[...document.querySelectorAll('style')].map(x=>x.innerHTML).join('\n');return `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>PO Pengiriman Crisbar</title><style>${style}</style></head><body style="background:white"><main style="max-width:1480px;margin:auto;padding:16px"><div class="card preview-card" style="border:0;box-shadow:none"><div id="resultArea" style="padding:0">${content}</div></div></main></body></html>`}
+  async function copyTables(){if(!lastResults?.tableGroups.length){toast('Belum ada tabel yang dapat disalin.');return}
+    const html=$('tablesOnly').outerHTML;
+    if(window.AndroidBridge && typeof AndroidBridge.copyHtml==='function'){
+      AndroidBridge.copyHtml(html,$('tablesOnly').innerText);
+      toast('Tabel tersalin ke clipboard Android.');return;
+    }
+    try{if(navigator.clipboard&&window.ClipboardItem){await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([document.getElementById('tablesOnly').innerText],{type:'text/plain'})})]);toast('Tabel berhasil disalin. Tempel di Word atau spreadsheet.');return}}catch(e){}
+    const range=document.createRange();range.selectNodeContents($('tablesOnly'));const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);const ok=document.execCommand('copy');selection.removeAllRanges();toast(ok?'Tabel berhasil disalin.':'Gagal menyalin. Blok tabel secara manual lalu Ctrl+C.');
+  }
+  function handleChange(e){
+    const t=e.target;
+    if(t.dataset.stockWarehouse!==undefined){
+      const row=data.stocks.find(x=>x.id===t.dataset.stockWarehouse);
+      if(row&&row.supplier==='BPA'&&(t.value===''||BPA_WAREHOUSES.includes(t.value))){
+        row.warehouse=t.value;
+        // Setelah lokasi ditetapkan, stok pada SKU dan gudang yang sama dijumlahkan.
+        if(row.warehouse){
+          const duplicate=data.stocks.find(x=>x!==row&&x.supplier==='BPA'&&x.sku===row.sku&&x.warehouse===row.warehouse);
+          if(duplicate){duplicate.qty+=row.qty;data.stocks=data.stocks.filter(x=>x.id!==row.id)}
+        }
+        keep();updateLists();calculate(false);
+        toast(row.warehouse?'Gudang BPA diperbarui menjadi Gudang '+row.warehouse+'.':'Stok BPA belum memiliki gudang dan tidak dialokasikan.');
+      }
+      return;
+    }
+    if(t.dataset.sqty){const n=data.stocks.find(x=>x.id===t.dataset.sqty);if(n&&validQty(t.value)){n.qty=Number(t.value);keep();calculate(false)}else toast('Qty stok harus bilangan bulat positif.')}
+    if(t.dataset.nqty){const n=data.demands.find(x=>x.id===t.dataset.nqty);if(n&&validDemandQty(t.value)){n.qty=Number(t.value);keep();updateLists();calculate(false)}else toast('Qty PO harus bilangan bulat 0 atau lebih.')}
+  }
+  function handleClick(e){const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.delstock){data.stocks=data.stocks.filter(x=>x.id!==b.dataset.delstock);keep();updateLists();calculate(false)}
+    if(b.dataset.delneed){data.demands=data.demands.filter(x=>x.id!==b.dataset.delneed);keep();updateLists();calculate(false)}
+  }
+  // Reset semua data kerja PO. Jangan ubah harga/rute/aturan supplier/catatan master.
+  function clearWorkingData(){
+    data.stocks=[];
+    data.demands=[];
+    data.allowFallback=false;
+    $('allowFallback').checked=false;
+    // Kembalikan semua input transaksi ke kondisi awal.
+    $('stockSupplier').value=SUPPLIERS[0];
+    $('stockSku').value=SKUS[0].id;
+    $('stockQty').value='';
+    $('stockWarehouse').value='';
+    $('quickSku').value=SKUS[0].id;
+    $('quickSupplier').value='auto';
+    $('quickBatch').value='All Rute';
+    const now=new Date();
+    const today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+    $('quickRequest').value=today;
+    $('quickShip').value=today;
+    clearQuick();
+    supplierFinanceFilter='all';
+    updateRouteUI();
+    refreshStockUnit();
+    refreshStockWarehouseField();
+    refreshInputUnits();
+    keep(); // Simpan transaksi kosong tanpa menyentuh konfigurasi master.
+    updateLists();
+    calculate(false); // Kosongkan tabel, pending, dan rangkuman perhitungan.
+    toast('Data input PO dibersihkan. Seluruh Informasi Master tetap tersimpan.');
+  }
+  function askClearWorkingData(){
+    const dlg=$('clearWorkingDialog');
+    if(typeof dlg.showModal==='function')dlg.showModal();
+    else if(confirm('Bersihkan semua data input PO? Stok, kebutuhan, Qty cepat, dan hasil alokasi akan dikosongkan. Informasi Master tetap tersimpan.'))clearWorkingData();
+  }
+  function backup(){
+    // Pakai tanggal request dari data PO yang tersimpan, bukan UTC/tanggal saat unduh.
+    // Jika belum ada kebutuhan PO, gunakan tanggal request pada form Input Cepat.
+    // Fallback terakhir memakai tanggal lokal pengguna (bukan toISOString/UTC).
+    const savedRequest=data.demands.find(d=>validDate(d.request))?.request;
+    const selectedRequest=$('quickRequest').value;
+    const today=new Date();
+    const localToday=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+    const requestDate=savedRequest||(validDate(selectedRequest)?selectedRequest:localToday);
+    download('PO_Ayam_'+requestDate+'.json','application/json;charset=utf-8',JSON.stringify({version:6,...data},null,2));
+    toast(window.AndroidBridge ? 'Pilih lokasi penyimpanan file PO_Ayam_'+requestDate+'.json' : 'Backup PO tanggal '+requestDate+' berhasil diunduh.');
+  }
+  function renderPriceMaster(){
+    const supplier=$('masterSupplier').value;
+    $('masterPriceGrid').innerHTML=SKUS.map(k=>{const p=price(supplier,k.id);return `<div class="master-price-row"><label for="pr_${k.id}">${esc(k.name)}<span style="font-weight:500;display:block;color:#708397">Rupiah per ${esc(k.uom)}</span></label><input id="pr_${k.id}" data-price-sku="${k.id}" type="number" min="0" max="1000000000" step="1" placeholder="Belum diisi" value="${p===null?'':p}" /></div>`}).join('');
+  }
+  function renderRouteMaster(){
+    $('masterRouteGrid').innerHTML=OUTLETS.map((o,i)=>`<div class="route-master-row"><span>${esc(o)}</span><select data-master-route="${i}" aria-label="Rute ${esc(o)}">${BATCHES.map(b=>`<option value="${b}"${routeOf(o)===b?' selected':''}>${b}</option>`).join('')}</select></div>`).join('');
+  }
+  function refreshRestrictionSwitch(){
+    $('restrictionEnabled').checked=!!data.supplierRestrictionsEnabled;
+    $('restrictionEnabled').setAttribute('aria-checked',data.supplierRestrictionsEnabled?'true':'false');
+    $('restrictionStatus').textContent=data.supplierRestrictionsEnabled?'ON':'OFF';
+    $('restrictionStatus').classList.toggle('is-active',data.supplierRestrictionsEnabled);
+    $('restrictionHelp').textContent=data.supplierRestrictionsEnabled?'ON: supplier dilarang mengirim ke outlet yang terdaftar; aturan diperiksa sebelum alokasi.':'OFF: aturan tetap tersimpan, namun tidak dipakai ketika menghitung alokasi.';
+  }
+  function renderNoteExceptions(){
+    const entries=OUTLETS.filter(o=>NOTES.includes(data.noteExceptions?.[o]));
+    $('noteExceptionCount').textContent=entries.length+' outlet';
+    $('noteExceptionList').innerHTML=entries.length?entries.map(o=>`<div class="note-exception-row"><strong>${esc(o)}</strong><span class="note-value">${esc(data.noteExceptions[o])}</span><div class="note-actions"><button type="button" class="outline tiny" data-edit-note-outlet="${esc(o)}">Edit</button><button type="button" class="danger tiny" data-delete-note-outlet="${esc(o)}">Hapus</button></div></div>`).join(''):'<div class="zero">Belum ada pengecualian outlet.</div>';
+  }
+  function changeNoteException(outlet,note){
+    if(!OUTLETS.includes(outlet)||!NOTES.includes(note))return;
+    data.noteExceptions[outlet]=note;
+    keep();renderNoteExceptions();updateLists();calculate(false);
+    toast('Pengecualian catatan '+outlet+' berhasil disimpan.');
+  }
+  function deleteNoteException(outlet){
+    if(!Object.hasOwn(data.noteExceptions,outlet))return;
+    delete data.noteExceptions[outlet];
+    keep();renderNoteExceptions();updateLists();calculate(false);
+    toast('Pengecualian '+outlet+' dihapus; catatan kembali mengikuti supplier alokasi.');
+  }
+  function renderRuleDraft(){
+    const selected=new Set(ruleDraft);
+    $('ruleOutletGrid').innerHTML=OUTLETS.map((o,i)=>`<label><input type="checkbox" data-rule-outlet="${i}"${selected.has(o)?' checked':''} /><span>${esc(o)}</span></label>`).join('');
+    $('ruleDraftCount').textContent=ruleDraft.length+' outlet';
+  }
+  function renderRuleSaved(){
+    const saved=SUPPLIERS.filter(s=>(data.supplierRestrictions[s]||[]).length);
+    $('ruleSavedCount').textContent=saved.length+' supplier';
+    $('ruleSavedList').innerHTML=saved.length?saved.map(s=>{
+      const blocked=data.supplierRestrictions[s];
+      return `<div class="rule-row"><div class="desc"><strong>${esc(s)}</strong><span>${blocked.length} outlet dibatasi · ${esc(blocked.join(', '))}</span></div><button class="outline tiny" type="button" data-edit-rule="${esc(s)}">Edit</button><button class="danger tiny" type="button" data-del-rule="${esc(s)}">Hapus</button></div>`;
+    }).join(''):'<div class="zero">Belum ada aturan supplier.</div>';
+  }
+  function renderRuleMaster(){
+    refreshRestrictionSwitch();
+    ruleDraft=[...(data.supplierRestrictions[$('ruleSupplier').value]||[])];
+    renderRuleDraft();renderRuleSaved();
+  }
+  function deleteSupplierRule(supplier){
+    if(!(data.supplierRestrictions[supplier]||[]).length){toast('Supplier '+supplier+' tidak memiliki aturan tersimpan.');return}
+    if(!confirm('Hapus aturan pembatasan untuk '+supplier+'?'))return;
+    delete data.supplierRestrictions[supplier];
+    if($('ruleSupplier').value===supplier)ruleDraft=[];
+    keep();renderRuleDraft();renderRuleSaved();calculate(false);
+    toast('Aturan '+supplier+' dihapus.');
+  }
+  function updateRouteUI(){
+    const selected=$('quickBatch').value;
+    $('quickGrid').querySelectorAll('.quick-item').forEach(div=>{
+      const inp=div.querySelector('input');
+      const visible=selected==='All Rute'||routeOf(inp.dataset.outlet)===selected;
+      div.style.display=visible?'':'none';
+      // Keep quantities already entered if the user switches route filters.
+    });
+    visibleQuickInputs().forEach((inp,i)=>{inp.closest('.quick-item').querySelector('.row-num').textContent=String(i+1).padStart(2,'0')});
+  }
+  initSelectors();restoreLocal();renderPriceMaster();renderRouteMaster();renderRuleMaster();renderNoteExceptions();updateRouteUI();updateLists();refreshInputUnits();refreshStockUnit();refreshStockWarehouseField();
+  $('masterSupplier').addEventListener('change',renderPriceMaster);
+  $('noteExceptionOutlet').addEventListener('change',()=>{
+    const existing=data.noteExceptions[$('noteExceptionOutlet').value];
+    if(existing)$('noteExceptionValue').value=existing;
+  });
+  $('saveNoteException').addEventListener('click',()=>changeNoteException($('noteExceptionOutlet').value,$('noteExceptionValue').value));
+  $('noteExceptionList').addEventListener('click',e=>{
+    const btn=e.target.closest('button');if(!btn)return;
+    if(btn.dataset.editNoteOutlet){
+      const outlet=btn.dataset.editNoteOutlet;
+      $('noteExceptionOutlet').value=outlet;
+      $('noteExceptionValue').value=data.noteExceptions[outlet];
+      $('noteExceptionOutlet').focus();
+    }else if(btn.dataset.deleteNoteOutlet){
+      deleteNoteException(btn.dataset.deleteNoteOutlet);
+    }
+  });
+  $('restrictionEnabled').addEventListener('change',e=>{
+    data.supplierRestrictionsEnabled=e.target.checked;
+    keep();refreshRestrictionSwitch();calculate(false);
+    toast(data.supplierRestrictionsEnabled?'Pembatasan supplier ON. Alokasi mempertimbangkan aturan.':'Pembatasan supplier OFF. Aturan tetap tersimpan.');
+  });
+  $('ruleSupplier').addEventListener('change',()=>{
+    ruleDraft=[...(data.supplierRestrictions[$('ruleSupplier').value]||[])];renderRuleDraft();
+  });
+  $('ruleOutletGrid').addEventListener('change',e=>{
+    const index=e.target.dataset.ruleOutlet;
+    if(index===undefined)return;
+    const outlet=OUTLETS[Number(index)];
+    if(e.target.checked&&!ruleDraft.includes(outlet))ruleDraft.push(outlet);
+    if(!e.target.checked)ruleDraft=ruleDraft.filter(o=>o!==outlet);
+    $('ruleDraftCount').textContent=ruleDraft.length+' outlet';
+  });
+  $('ruleSelectAll').addEventListener('click',()=>{ruleDraft=[...OUTLETS];renderRuleDraft()});
+  $('ruleClearSelection').addEventListener('click',()=>{ruleDraft=[];renderRuleDraft()});
+  $('ruleSave').addEventListener('click',()=>{
+    const supplier=$('ruleSupplier').value;
+    if(!ruleDraft.length){toast('Pilih minimal 1 outlet. Untuk menghapus aturan gunakan tombol Hapus.');return}
+    data.supplierRestrictions[supplier]=OUTLETS.filter(o=>ruleDraft.includes(o));
+    keep();renderRuleSaved();calculate(false);
+    toast('Aturan '+supplier+' tersimpan ('+ruleDraft.length+' outlet). Status pembatasan '+(data.supplierRestrictionsEnabled?'ON':'OFF')+'.');
+  });
+  $('ruleDelete').addEventListener('click',()=>deleteSupplierRule($('ruleSupplier').value));
+  $('ruleSavedList').addEventListener('click',e=>{
+    const button=e.target.closest('button');if(!button)return;
+    const edit=button.dataset.editRule,del=button.dataset.delRule;
+    if(edit){$('ruleSupplier').value=edit;ruleDraft=[...(data.supplierRestrictions[edit]||[])];renderRuleDraft();$('ruleSupplier').scrollIntoView({behavior:'smooth',block:'center'});}
+    if(del)deleteSupplierRule(del);
+  });
+  $('masterPriceGrid').addEventListener('change',e=>{
+    const k=e.target.dataset.priceSku;if(!k)return;
+    const v=e.target.value.trim(), key=$('masterSupplier').value+'|'+k;
+    if(v==='')data.prices[key]=null;
+    else if(!Number.isSafeInteger(Number(v))||Number(v)<0||Number(v)>1000000000){toast('Harga harus nominal rupiah bulat 0–1 miliar.');renderPriceMaster();return}
+    else data.prices[key]=Number(v);
+    keep();calculate(false);toast('Harga '+$('masterSupplier').value+' / '+sku(k).name+' diperbarui.');
+  });
+  $('clearPriceBtn').addEventListener('click',()=>{
+    const sp=$('masterSupplier').value;
+    if(!confirm('Kosongkan seluruh harga SKU supplier '+sp+'?'))return;
+    for(const k of SKUS)data.prices[sp+'|'+k.id]=null;
+    keep();renderPriceMaster();calculate(false);toast('Harga '+sp+' dikosongkan.');
+  });
+  $('masterRouteGrid').addEventListener('change',e=>{
+    const idx=e.target.dataset.masterRoute;if(idx===undefined)return;
+    const outlet=OUTLETS[Number(idx)];data.routes[outlet]=e.target.value;
+    data.demands.filter(d=>d.outlet===outlet).forEach(d=>d.batch=e.target.value);
+    keep();updateRouteUI();updateLists();calculate(false);toast('Rute '+outlet+' diperbarui.');
+  });
+  $('quickBatch').addEventListener('change',()=>{updateRouteUI();updatePasteStatus()});
+  $('quickSku').addEventListener('change',refreshInputUnits);
+  $('stockSku').addEventListener('change',refreshStockUnit);
+  $('stockSupplier').addEventListener('change',refreshStockWarehouseField);
+  $('quickGrid').addEventListener('input',updatePasteStatus);
+  $('quickGrid').addEventListener('paste',e=>{
+    const input=e.target.closest('input[data-outlet]');
+    if(!input)return;
+    const text=e.clipboardData?.getData('text/plain')||'';
+    if(!text.includes('\n')&&!text.includes('\t'))return; // Native paste for one number.
+    e.preventDefault();applyPastedQty(text,input);
+  });
+  $('qtyPaste').addEventListener('paste',e=>{
+    const text=e.clipboardData?.getData('text/plain')||'';
+    if(!text)return;
+    e.preventDefault();applyPastedQty(text);
+  });
+  $('applyPaste').addEventListener('click',()=>applyPastedQty($('qtyPaste').value));
+  $('clearPaste').addEventListener('click',()=>{$('qtyPaste').value='';toast('Kotak paste dibersihkan.')});
+  $('stockForm').addEventListener('submit',addStock);
+  $('quickAdd').addEventListener('click',addQuick);
+  $('quickClear').addEventListener('click',clearQuick);
+  $('stockList').addEventListener('change',handleChange);$('demandList').addEventListener('change',handleChange);
+  $('stockList').addEventListener('click',handleClick);$('demandList').addEventListener('click',handleClick);
+  $('allowFallback').addEventListener('change',e=>{data.allowFallback=e.target.checked;keep();calculate(false)});
+  $('resultArea').addEventListener('change',e=>{
+    if(e.target.id!=='supplierValueFilter')return;
+    supplierFinanceFilter=e.target.value;
+    if(lastResults){const target=$('supplierFinance');if(target)target.outerHTML=supplierFinanceSummaryHtml(lastResults);}
+  });
+  $('calcBtn').addEventListener('click',()=>{calculate();toast('Alokasi dihitung ulang dari stok awal.')});
+  $('demoBtn').addEventListener('click',loadDemo);
+  $('resetBtn').addEventListener('click',askClearWorkingData);
+  $('printBtn').addEventListener('click',()=>{if(!lastResults?.tableGroups.length){toast('Belum ada tabel untuk dicetak.');return}if(window.AndroidBridge&&typeof AndroidBridge.printPo==='function')AndroidBridge.printPo();else window.print()});
+  $('copyBtn').addEventListener('click',copyTables);
+  $('exportHtmlBtn').addEventListener('click',()=>{const result=outputDocument();if(!result){toast('Belum ada tabel untuk diunduh.');return}download('Crisbar_PO_Pengiriman_Tabel.html','text/html;charset=utf-8',result);toast('File hasil tabel HTML diunduh.')});
+  $('clearWorkingBtn').addEventListener('click',askClearWorkingData);
+  $('clearWorkingCancel').addEventListener('click',()=>$('clearWorkingDialog').close());
+  $('clearWorkingConfirm').addEventListener('click',()=>{$('clearWorkingDialog').close();clearWorkingData()});
+  $('backupBtn').addEventListener('click',backup);
+  $('restoreBtn').addEventListener('click',()=>$('restoreInput').click());
+  $('restoreInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const d=JSON.parse(await file.text());loadState(d,true);toast('Data backup berhasil dipulihkan.')}catch(err){toast('Gagal membaca file: '+err.message)}e.target.value=''});
+  if(new URLSearchParams(location.search).get('demo')==='1'&&!data.stocks.length&&!data.demands.length)loadDemo();
+})();
+</script>
+</body>
+</html>
