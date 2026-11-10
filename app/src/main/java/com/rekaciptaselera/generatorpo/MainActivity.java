@@ -1,7 +1,7 @@
 package com.rekaciptaselera.generatorpo;
 
 import android.app.Activity;
-import android.app.PrintManager;
+import android.print.PrintManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
