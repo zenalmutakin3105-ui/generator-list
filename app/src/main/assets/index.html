@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#172f48" />
-<title>Generator PO · Beta 0.1</title>
+<title>Generator PO · Beta 0.2</title>
 <style>
   :root { --navy:#172f48; --navy2:#264d6c; --yellow:#f8be18; --gold:#fff0b3; --green:#167253; --red:#c0392b; --blue:#eaf2ff; --ink:#1d2834; --muted:#697787; --line:#dce3eb; --page:#f3f6fb; --white:#fff; --shadow:0 8px 26px rgba(24,45,72,.075); }
   * { box-sizing:border-box; }
@@ -182,6 +182,26 @@
   .po-summary .sku-summary-table tfoot td {background:#f1f5fa;font-weight:800;color:#1a3650;border-top:2px solid #cedbe7;}
   .po-summary .summary-info {margin:9px 0 0;font-size:10.5px;color:#708092;line-height:1.5;}
   .po-summary .summary-rounding {margin:10px 0 0;background:#fff7e9;border-left:3px solid #e6a12c;border-radius:5px;padding:9px 11px;font-size:11px;line-height:1.6;color:#735122;}
+
+  /* Perincian pembulatan per outlet: memisahkan kenaikan, penurunan, dan neto. */
+  .summary-rounding-breakdown {margin:12px 0 0;border:1px solid #f0d7a2;background:#fff9ed;border-radius:8px;overflow:hidden;color:#664414;}
+  .summary-rounding-breakdown > summary {cursor:pointer;list-style:none;padding:11px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;font-weight:750;}
+  .summary-rounding-breakdown > summary::-webkit-details-marker {display:none;}
+  .summary-rounding-breakdown > summary::before {content:'▼';font-size:10px;color:#9e6b19;}
+  .summary-rounding-breakdown:not([open]) > summary::before {content:'▶';}
+  .summary-rounding-breakdown .rounding-summary-chips {display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;}
+  .summary-rounding-breakdown .rounding-chip {background:#fff;border:1px solid #edd7b6;padding:3px 6px;border-radius:5px;white-space:nowrap;font-size:10px;}
+  .summary-rounding-breakdown .rounding-body {border-top:1px solid #f0d7a2;padding:11px;}
+  .summary-rounding-breakdown .rounding-sku-heading {font-size:12px;font-weight:750;margin:10px 0 7px;}
+  .summary-rounding-breakdown .rounding-table-scroll {overflow-x:auto;border:1px solid #eadabb;background:#fff;border-radius:6px;}
+  .summary-rounding-breakdown .rounding-table {width:100%;border-collapse:collapse;min-width:645px;font-size:11px;}
+  .summary-rounding-breakdown .rounding-table th,.summary-rounding-breakdown .rounding-table td {padding:7px 9px;border-bottom:1px solid #f0e7d7;text-align:right;white-space:nowrap;}
+  .summary-rounding-breakdown .rounding-table th {background:#fff0d7;font-size:10px;color:#5f4722;}
+  .summary-rounding-breakdown .rounding-table td:first-child,.summary-rounding-breakdown .rounding-table th:first-child,.summary-rounding-breakdown .rounding-table td:nth-child(2),.summary-rounding-breakdown .rounding-table th:nth-child(2) {text-align:left;}
+  .summary-rounding-breakdown .rounding-table tfoot td {background:#fff8ec;font-weight:700;border-top:1px solid #dfbb79;}
+  .summary-rounding-breakdown .round-plus {color:#177848;font-weight:800;}
+  .summary-rounding-breakdown .round-minus {color:#b52b32;font-weight:800;}
+  .summary-rounding-breakdown .rounding-explain {font-size:10px;line-height:1.6;color:#775c32;margin:9px 0 0;}
   /* Ringkasan nilai PO hanya tampil di dashboard, tidak pada cetak atau hasil HTML pengiriman. */
   .supplier-finance {border:1px solid #dce5ee;border-radius:12px;padding:0;margin:0 0 23px;background:#fff;overflow:hidden;}
   .supplier-finance > summary {display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;padding:15px 16px;user-select:none;min-height:60px;}
@@ -477,7 +497,7 @@
     <div id="resultArea"><div class="empty-output"><div><b>Hasil belum dibuat</b>Masukkan stok dan qty kebutuhan, lalu klik “Hitung Alokasi & Tampilkan Tabel”.<br/>Atau klik “Muat Contoh dari Gambar”.</div></div></div>
   </div>
 </main>
-<footer class="no-print">GENERATOR PO BETA 0.1 • V6 • Daftar Stok Supplier &amp; Input Cepat Collapse • Ringkasan Qty &amp; Rupiah Supplier–SKU • Input kebutuhan PCS → Pack (÷10) sebelum pembulatan supplier, Catatan Default Supplier & Pengecualian Outlet, Daftar Kebutuhan Collapse per SKU, Ringkasan per SKU, Paste Qty, Aturan Supplier & Warna Catatan • Aplikasi offline • Data disimpan di browser • Qty 0 tidak tampil pada tabel PO.</footer>
+<footer class="no-print">GENERATOR PO BETA 0.2 • V6 • Daftar Stok Supplier &amp; Input Cepat Collapse • Ringkasan Qty &amp; Rupiah Supplier–SKU • Input kebutuhan PCS → Pack (÷10) sebelum pembulatan supplier, Catatan Default Supplier & Pengecualian Outlet, Daftar Kebutuhan Collapse per SKU, Ringkasan per SKU, Paste Qty, Aturan Supplier & Warna Catatan • Aplikasi offline • Data disimpan di browser • Qty 0 tidak tampil pada tabel PO.</footer>
 <dialog id="clearWorkingDialog" class="reset-dialog" aria-labelledby="clearWorkingTitle" aria-describedby="clearWorkingDesc">
   <div class="reset-dialog-body">
     <h3 id="clearWorkingTitle">Bersihkan Data Input?</h3>
@@ -795,9 +815,11 @@
       const key=stockInventoryKey(s.supplier,s.sku,s.warehouse);
       inv[key]=(inv[key]||0)+s.qty;
     }
-    const all=[],pending=[];
+    const all=[],pending=[],roundingDetails=[];
     const ds=data.demands.slice().sort((a,b)=>a.ship.localeCompare(b.ship)||a.request.localeCompare(b.request));
-    for(const d of ds){if(d.qty===0)continue;let left=qtyToPoUom(d.qty,d.sku);
+    for(const d of ds){if(d.qty===0)continue;
+      const requested=qtyToPoUom(d.qty,d.sku);
+      let left=requested,allocatedForDemand=0,roundingSupplier='';
       for(const supplier of chooseSuppliers(d,inv)){
         const key=demandInventoryKey(supplier,d);
         const available=inv[key]||0;
@@ -807,6 +829,7 @@
         const target=roundedQty(left,supplier,d.sku);
         if(target===0){
           // Permintaan positif yang paling dekat dengan 0 memang tidak menghasilkan PO.
+          roundingSupplier=supplier;
           left=0;
           break;
         }
@@ -815,13 +838,26 @@
         const taken=Math.min(target,availableWhole);
         if(taken>0){
           all.push({...d,supplier,allocated:taken});
+          allocatedForDemand+=taken;
           inv[key]-=taken;
           // Qty sesuai hasil pembulatan dianggap terpenuhi walaupun dibulatkan turun.
+          if(taken===target)roundingSupplier=supplier;
           left=(taken===target)?0:Math.max(0,left-taken);
         }
         if(left===0)break;
       }
       if(left>0)pending.push({...d,missing:left});
+      // Rekonsiliasi per kebutuhan (bukan hanya total SKU) sehingga pembulatan
+      // plus dan minus tidak saling menghilangkan. Jika masih pending, nilai
+      // pending dipisahkan dari efek pembulatan.
+      const difference=Number((allocatedForDemand+left-requested).toFixed(8));
+      if(Math.abs(difference)>1e-7){
+        roundingDetails.push({
+          outlet:d.outlet,sku:d.sku,supplier:roundingSupplier||d.preferred,
+          requested,allocated:allocatedForDemand,pending:left,difference,
+          request:d.request,ship:d.ship,route:routeOf(d.outlet)
+        });
+      }
     }
     const groups=new Map();
     for(const d of all){
@@ -838,7 +874,7 @@
       group.items.sort((a,b)=>a.outlet.localeCompare(b.outlet,'id',{sensitivity:'base'}));
     }
     const tableGroups=[...groups.values()].sort((a,b)=>a.ship.localeCompare(b.ship)||SUPPLIERS.indexOf(a.supplier)-SUPPLIERS.indexOf(b.supplier)||SKUS.findIndex(k=>k.id===a.sku)-SKUS.findIndex(k=>k.id===b.sku)||a.request.localeCompare(b.request)||BATCHES.indexOf(a.batch)-BATCHES.indexOf(b.batch));
-    lastResults={tableGroups,pending,stockLeft:inv};renderResult(lastResults);
+    lastResults={tableGroups,pending,roundingDetails,stockLeft:inv};renderResult(lastResults);
     if(scroll)$('outputSection').scrollIntoView({behavior:'smooth',block:'start'});
   }
   function tableHtml(g){const k=sku(g.sku);const total=g.items.reduce((sum,i)=>sum+i.qty,0);const p=price(g.supplier,g.sku);
@@ -868,12 +904,25 @@
       pending:acc.pending+s.pending
     }),{requested:0,allocated:0,pending:0});
     const rows=summaries.map(k=>`<tr><td><div class="sku-name-wrap"><i class="sku-swatch" style="--sku-accent:${SKU_COLORS[k.id]||'#ddd'}"></i><div class="sku-caption"><strong>${esc(k.name.replace(/ \((Pack|Ekor)\)$/,''))}</strong><small>${esc(k.uom)}</small></div></div></td><td>${num(k.requested)}</td><td>${num(k.allocated)}</td><td>${num(k.pending)}</td></tr>`).join('');
-    const rounding=summaries.filter(k=>Math.abs(k.allocated+k.pending-k.requested)>1e-8).map(k=>{
-      const difference=k.allocated+k.pending-k.requested;
-      const direction=difference>0?'kelebihan':'pengurangan';
-      return `${esc(k.name.replace(/ \((Pack|Ekor)\)$/,''))}: <b>${difference>0?'+':''}${num(difference)} ${esc(k.uom)}</b> (${direction} qty setelah pembulatan)`;
-    });
-    const roundingInfo=rounding.length?`<p class="summary-rounding"><b>Selisih pembulatan (bukan pending):</b> ${rounding.join(' · ')}. Rumus: Qty Dialokasi + Pending − Qty Diminta.</p>`:'';
+    const roundingDetails=(res.roundingDetails||[]);
+    const fmtSigned=v=>(v>0?'+':'')+num(v);
+    const roundingInfo=roundingDetails.length?`<details class="summary-rounding-breakdown" open>
+      <summary><span>Selisih pembulatan — rincian per outlet</span>
+        <span class="rounding-summary-chips">${SKUS.filter(k=>roundingDetails.some(r=>r.sku===k.id)).map(k=>{
+          const dif=roundingDetails.filter(r=>r.sku===k.id).reduce((v,r)=>v+r.difference,0);
+          return `<span class="rounding-chip">${esc(k.name.replace(/ \((Pack|Ekor)\)$/,''))}: <b>${fmtSigned(dif)} ${esc(k.uom)}</b></span>`;
+        }).join('')}</span>
+      </summary>
+      <div class="rounding-body">${SKUS.filter(k=>roundingDetails.some(r=>r.sku===k.id)).map(k=>{
+        const details=roundingDetails.filter(r=>r.sku===k.id).sort((a,b)=>a.outlet.localeCompare(b.outlet,'id',{sensitivity:'base'})||a.ship.localeCompare(b.ship));
+        const plus=details.reduce((v,r)=>v+Math.max(0,r.difference),0);
+        const minus=details.reduce((v,r)=>v+Math.min(0,r.difference),0);
+        const net=plus+minus;
+        const trs=details.map(r=>`<tr><td>${esc(r.outlet)}<small style="display:block;color:#8c795b">${esc(r.route)}</small></td><td>${esc(r.supplier==='auto'?'Otomatis':r.supplier)}</td><td>${num(r.requested)}</td><td>${num(r.allocated)}</td><td>${num(r.pending)}</td><td class="${r.difference>0?'round-plus':'round-minus'}">${fmtSigned(r.difference)}</td></tr>`).join('');
+        return `<h4 class="rounding-sku-heading">${esc(k.name.replace(/ \((Pack|Ekor)\)$/,''))} (${esc(k.uom)})</h4><div class="rounding-table-scroll"><table class="rounding-table"><thead><tr><th>Outlet</th><th>Supplier</th><th>Diminta</th><th>Dialokasi</th><th>Pending</th><th>Selisih ±</th></tr></thead><tbody>${trs}</tbody><tfoot><tr><td colspan="5">Total pembulatan naik</td><td class="round-plus">+${num(plus)}</td></tr><tr><td colspan="5">Total pembulatan turun</td><td class="round-minus">${num(minus)}</td></tr><tr><td colspan="5">Selisih bersih</td><td class="${net>=0?'round-plus':'round-minus'}">${fmtSigned(net)}</td></tr></tfoot></table></div>`;
+      }).join('')}
+      <p class="rounding-explain">Selisih tiap outlet = Qty Dialokasi + Qty Pending − Qty Diminta (dalam Pack/Ekor). Pembulatan naik (+) dan turun (−) dihitung terpisah; pending stok bukan selisih pembulatan. Supplier menunjukkan supplier pada langkah pembulatan terakhir. Qty 0 akibat pembulatan tetap diperinci.</p></div>
+    </details>`:'';
     return `<section class="po-summary no-print" aria-label="Ringkasan hasil alokasi PO per SKU"><div class="summary-top"><div><h3 class="summary-title">Ringkasan Hasil Alokasi PO</h3><p class="summary-subtitle">Rekap kebutuhan dan hasil alokasi seluruh outlet</p></div><div class="table-counter"><span>Jumlah Tabel PO</span><b>${num(res.tableGroups.length)}</b></div></div><div class="summary-label">Rincian Qty Berdasarkan SKU</div><div class="summary-scroll"><table class="sku-summary-table"><thead><tr><th>SKU</th><th>Diminta</th><th>Dialokasi</th><th>Pending</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td>Total Gabungan*</td><td>${num(totals.requested)}</td><td>${num(totals.allocated)}</td><td>${num(totals.pending)}</td></tr></tfoot></table></div><p class="summary-info">*Qty Diminta untuk Dada Paha Atas & Fillet sudah dikonversi dari input PCS menjadi Pack (÷10), sebelum pembulatan supplier. Ayam Utuh tetap Ekor. Total gabungan Pack + Ekor hanya referensi angka. Pending bukan selisih pembulatan.</p>${roundingInfo}</section>`;
   }
   // Rekap nilai PO dari tabel hasil final (bukan dari demand mentah):
